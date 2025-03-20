@@ -1,5 +1,5 @@
 
-import { Leaf, Github, Twitter, Mail } from 'lucide-react';
+import { Github, Twitter, Mail } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Footer = () => {
@@ -11,12 +11,16 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="md:col-span-2">
             <Link to="/" className="flex items-center space-x-2 text-primary mb-4">
-              <Leaf className="h-6 w-6" />
-              <span className="font-semibold text-xl">CropWise</span>
+              <img 
+                src="/lovable-uploads/28a87d9e-bf3b-4021-bd55-6a7c87f2f8f3.png" 
+                alt="AgriVision Logo" 
+                className="h-10 w-auto" 
+              />
+              <span className="font-semibold text-xl">AgriVision</span>
             </Link>
             <p className="text-muted-foreground max-w-md">
-              Harnessing the power of AI to revolutionize agriculture with 
-              personalized crop recommendations based on your unique environmental conditions.
+              AI based crop recommendation system harnessing the power of artificial intelligence 
+              to revolutionize agriculture with personalized recommendations based on your unique environmental conditions.
             </p>
             <div className="flex space-x-4 mt-6">
               <a 
@@ -34,7 +38,7 @@ const Footer = () => {
                 <Twitter className="h-5 w-5" />
               </a>
               <a 
-                href="mailto:info@cropwise.com" 
+                href="mailto:info@agrivision.com" 
                 className="text-muted-foreground hover:text-primary transition-colors"
                 aria-label="Email"
               >
@@ -74,14 +78,14 @@ const Footer = () => {
             <ul className="space-y-3 text-muted-foreground">
               <li>1234 Smart Farm Lane</li>
               <li>Agri Valley, CA 94123</li>
-              <li>contact@cropwise.com</li>
+              <li>contact@agrivision.com</li>
               <li>+1 (555) 123-4567</li>
             </ul>
           </div>
         </div>
         
         <div className="border-t border-border mt-12 pt-8 text-center text-muted-foreground">
-          <p>© {currentYear} CropWise. All rights reserved.</p>
+          <p>© {currentYear} AgriVision. All rights reserved.</p>
         </div>
       </div>
     </footer>

@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { Sun, Moon, Menu, X, Leaf } from 'lucide-react';
+import { Sun, Moon, Menu, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Navbar = () => {
@@ -54,8 +54,12 @@ const Navbar = () => {
     >
       <div className="container mx-auto px-6 flex justify-between items-center">
         <Link to="/" className="flex items-center space-x-2 text-primary">
-          <Leaf className="h-6 w-6" />
-          <span className="font-semibold text-xl">CropWise</span>
+          <img 
+            src="/lovable-uploads/28a87d9e-bf3b-4021-bd55-6a7c87f2f8f3.png" 
+            alt="AgriVision Logo" 
+            className="h-10 w-auto" 
+          />
+          <span className="font-semibold text-xl">AgriVision</span>
         </Link>
 
         {/* Desktop Navigation */}
