@@ -1,8 +1,10 @@
 
 import { Github, Twitter, Mail } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useLanguage } from '../context/LanguageContext';
 
 const Footer = () => {
+  const { t } = useLanguage();
   const currentYear = new Date().getFullYear();
 
   return (
@@ -48,16 +50,16 @@ const Footer = () => {
           </div>
           
           <div>
-            <h3 className="font-semibold text-foreground mb-4">Quick Links</h3>
+            <h3 className="font-semibold text-foreground mb-4">{t('footer.quick_links')}</h3>
             <ul className="space-y-3">
               <li>
                 <Link to="/" className="text-muted-foreground hover:text-primary transition-colors">
-                  Home
+                  {t('nav.home')}
                 </Link>
               </li>
               <li>
                 <Link to="/about" className="text-muted-foreground hover:text-primary transition-colors">
-                  About
+                  {t('nav.about')}
                 </Link>
               </li>
               <li>
@@ -74,7 +76,7 @@ const Footer = () => {
           </div>
           
           <div>
-            <h3 className="font-semibold text-foreground mb-4">Contact</h3>
+            <h3 className="font-semibold text-foreground mb-4">{t('footer.contact')}</h3>
             <ul className="space-y-3 text-muted-foreground">
               <li>1234 Smart Farm Lane</li>
               <li>Agri Valley, CA 94123</li>
@@ -85,7 +87,7 @@ const Footer = () => {
         </div>
         
         <div className="border-t border-border mt-12 pt-8 text-center text-muted-foreground">
-          <p>© {currentYear} AgriVision. All rights reserved.</p>
+          <p>© {currentYear} AgriVision. {t('footer.rights')}</p>
         </div>
       </div>
     </footer>

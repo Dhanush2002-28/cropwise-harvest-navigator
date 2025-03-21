@@ -1,6 +1,7 @@
 
 import { useEffect, useState } from 'react';
 import { Leaf, Droplets, Sun, ThermometerSun, Sparkles } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 // Mock data for crop recommendations
 const cropData = {
@@ -64,22 +65,27 @@ interface RecommendationProps {
     city?: string;
     region?: string;
     country?: string;
+    soilType?: string;
+    climate?: string;
+    season?: string;
   } | null;
   formData: {
-    soilType: string;
-    climate: string;
-    season: string;
-    waterAvailability: number;
-    previousCrop: string;
+    interestedCrops: string;
   };
 }
 
 const RecommendationCard = ({ location, formData }: RecommendationProps) => {
+  const { t } = useLanguage();
   const [recommendations, setRecommendations] = useState<Crop[]>([]);
   const [loading, setLoading] = useState(false);
 
   // Generate detailed information for a crop
-  const getDetailedCropInfo = (cropName: string): Crop => {
+  const getDetailedCropInfo = (cropName: string, preferredCrops: string[]): Crop => {
+    // Calculate preference match based on user's interested crops
+    const isPreferred = preferredCrops.some(preferred => 
+      cropName.toLowerCase().includes(preferred.toLowerCase())
+    );
+    
     // This would normally come from an API, but we're generating it for demo purposes
     const waterNeeds = Math.floor(Math.random() * 70) + 30; // 30-100
     const growthPeriods = ['60-90 days', '3-4 months', '4-6 months', '6-8 months'];
@@ -89,35 +95,63 @@ const RecommendationCard = ({ location, formData }: RecommendationProps) => {
     
     return {
       name: cropName,
-      description: `${cropName} is well-suited for the ${formData.climate} climate and thrives in ${formData.soilType} soil. It performs best during the ${formData.season} season.`,
-      waterNeeds,
+      description: `${cropName} is well-suited for the ${location?.climate} climate and thrives in ${location?.soilType} soil. It performs best during the ${location?.season} season.`,
+      waterNeeds: isPreferred ? 80 : waterNeeds, // Preferred crops get better water score
       growthPeriod: growthPeriods[Math.floor(Math.random() * growthPeriods.length)],
       idealTemperature: temperatures[Math.floor(Math.random() * temperatures.length)],
       soilPh: soilPh[Math.floor(Math.random() * soilPh.length)],
-      yield: yields[Math.floor(Math.random() * yields.length)],
+      yield: isPreferred ? yields[2] : yields[Math.floor(Math.random() * yields.length)], // Better yield for preferred crops
     };
   };
 
-  // Generate recommendations based on form data
+  // Generate recommendations based on location and user preferences
   const generateRecommendations = () => {
     setLoading(true);
     
     // Simulate API call delay
     setTimeout(() => {
       try {
-        // Get crops based on climate and soil type
-        const eligibleCrops = cropData[formData.climate as keyof typeof cropData]?.[
-          formData.soilType as keyof (typeof cropData)[keyof typeof cropData]
+        if (!location?.climate || !location?.soilType) {
+          setRecommendations([]);
+          setLoading(false);
+          return;
+        }
+        
+        // Get crops based on detected climate and soil type
+        const eligibleCrops = cropData[location.climate as keyof typeof cropData]?.[
+          location.soilType as keyof (typeof cropData)[keyof typeof cropData]
         ] || [];
+        
+        // Process user's interested crops
+        const userCrops = formData.interestedCrops
+          .split(',')
+          .map(crop => crop.trim())
+          .filter(crop => crop !== '');
         
         // Generate detailed info for each crop
         const detailedRecommendations = eligibleCrops
-          .map(cropName => getDetailedCropInfo(cropName))
+          .map(cropName => getDetailedCropInfo(cropName, userCrops))
           .sort((a, b) => {
-            // Sort by water needs vs availability
-            const aWaterDiff = Math.abs(a.waterNeeds - formData.waterAvailability);
-            const bWaterDiff = Math.abs(b.waterNeeds - formData.waterAvailability);
-            return aWaterDiff - bWaterDiff;
+            // Sort by user preference first, then by water needs
+            const aPreferred = userCrops.some(crop => 
+              a.name.toLowerCase().includes(crop.toLowerCase())
+            );
+            const bPreferred = userCrops.some(crop => 
+              b.name.toLowerCase().includes(crop.toLowerCase())
+            );
+            
+            if (aPreferred && !bPreferred) return -1;
+            if (!aPreferred && bPreferred) return 1;
+            
+            // Then sort by water efficiency for the current season
+            const waterEfficiency = (crop: Crop) => {
+              if (location.season === 'summer' || location.season === 'dry') {
+                return -crop.waterNeeds; // Lower water needs better in dry seasons
+              }
+              return 0; // No preference in other seasons
+            };
+            
+            return waterEfficiency(b) - waterEfficiency(a);
           });
         
         setRecommendations(detailedRecommendations);
@@ -130,23 +164,19 @@ const RecommendationCard = ({ location, formData }: RecommendationProps) => {
   };
 
   useEffect(() => {
-    // Only generate recommendations if we have all required data
-    if (
-      formData.soilType &&
-      formData.climate &&
-      formData.season
-    ) {
+    // Generate recommendations if we have location data
+    if (location?.latitude && location?.longitude) {
       generateRecommendations();
     }
-  }, [formData]);
+  }, [location, formData]);
 
-  if (!formData.soilType || !formData.climate) {
+  if (!location?.latitude || !location?.longitude) {
     return (
       <div className="glass rounded-xl p-6 text-center card-shine">
         <Sparkles className="w-12 h-12 mx-auto mb-4 text-primary opacity-50" />
-        <h3 className="text-xl font-semibold mb-2">Awaiting Your Preferences</h3>
+        <h3 className="text-xl font-semibold mb-2">{t('recommendations.waiting')}</h3>
         <p className="text-muted-foreground">
-          Fill out the form to get personalized crop recommendations for your land.
+          {t('recommendations.fill_form')}
         </p>
       </div>
     );
@@ -179,7 +209,7 @@ const RecommendationCard = ({ location, formData }: RecommendationProps) => {
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-xl font-semibold flex items-center">
           <Leaf className="w-5 h-5 mr-2 text-primary" />
-          Recommended Crops
+          {t('recommendations.title')}
         </h3>
         {location?.city && (
           <div className="px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium">
@@ -202,7 +232,7 @@ const RecommendationCard = ({ location, formData }: RecommendationProps) => {
                 <h4 className="text-lg font-medium text-foreground">{crop.name}</h4>
                 {index === 0 && (
                   <span className="px-2 py-0.5 text-xs bg-primary text-primary-foreground rounded-full">
-                    Best Match
+                    {t('recommendations.best_match')}
                   </span>
                 )}
               </div>
@@ -211,7 +241,7 @@ const RecommendationCard = ({ location, formData }: RecommendationProps) => {
               <div className="grid grid-cols-2 gap-3">
                 <div className="flex items-center text-sm">
                   <Droplets className="w-4 h-4 mr-1.5 text-primary" />
-                  <span>Water: {crop.waterNeeds}%</span>
+                  <span>{t('recommendations.water')}: {crop.waterNeeds}%</span>
                 </div>
                 <div className="flex items-center text-sm">
                   <ThermometerSun className="w-4 h-4 mr-1.5 text-primary" />
@@ -219,7 +249,7 @@ const RecommendationCard = ({ location, formData }: RecommendationProps) => {
                 </div>
                 <div className="flex items-center text-sm col-span-2">
                   <Sun className="w-4 h-4 mr-1.5 text-primary" />
-                  <span>Growth: {crop.growthPeriod}</span>
+                  <span>{t('recommendations.growth')}: {crop.growthPeriod}</span>
                 </div>
               </div>
             </div>
@@ -228,8 +258,7 @@ const RecommendationCard = ({ location, formData }: RecommendationProps) => {
       ) : (
         <div className="text-center py-8">
           <p className="text-muted-foreground">
-            No crop recommendations available for the selected combination.
-            Please try different soil type or climate settings.
+            {t('recommendations.no_results')}
           </p>
         </div>
       )}

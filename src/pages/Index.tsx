@@ -7,6 +7,7 @@ import CropForm from '../components/CropForm';
 import RecommendationCard from '../components/RecommendationCard';
 import Footer from '../components/Footer';
 import { ArrowRight, Leaf, Wheat } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 interface Location {
   latitude: number;
@@ -14,24 +15,20 @@ interface Location {
   city?: string;
   region?: string;
   country?: string;
+  soilType?: string;
+  climate?: string;
+  season?: string;
 }
 
 interface FormData {
-  soilType: string;
-  climate: string;
-  season: string;
-  waterAvailability: number;
-  previousCrop: string;
+  interestedCrops: string;
 }
 
 const Index = () => {
+  const { t } = useLanguage();
   const [location, setLocation] = useState<Location | null>(null);
   const [formData, setFormData] = useState<FormData>({
-    soilType: '',
-    climate: '',
-    season: '',
-    waterAvailability: 50,
-    previousCrop: '',
+    interestedCrops: '',
   });
 
   const handleLocationChange = (newLocation: Location) => {
@@ -55,9 +52,9 @@ const Index = () => {
                 <div className="inline-block mb-4 px-4 py-1.5 rounded-full bg-primary/10 dark:bg-primary/20 text-primary text-sm font-medium">
                   Smart Agriculture
                 </div>
-                <h2 className="text-3xl md:text-4xl font-bold mb-4">Get Personalized Crop Recommendations</h2>
+                <h2 className="text-3xl md:text-4xl font-bold mb-4">{t('hero.subtitle')}</h2>
                 <p className="text-muted-foreground max-w-2xl mx-auto">
-                  Our AI-powered system analyzes your location, soil conditions, and climate patterns to provide you with the best crops to grow on your land.
+                  {t('recommendations.fill_form')}
                 </p>
               </div>
               
@@ -79,11 +76,11 @@ const Index = () => {
             <div className="max-w-6xl mx-auto">
               <div className="text-center mb-16">
                 <div className="inline-block mb-4 px-4 py-1.5 rounded-full bg-primary/10 dark:bg-primary/20 text-primary text-sm font-medium">
-                  Features
+                  {t('features.title')}
                 </div>
-                <h2 className="text-3xl md:text-4xl font-bold mb-4">Why Choose CropWise</h2>
+                <h2 className="text-3xl md:text-4xl font-bold mb-4">{t('features.title')}</h2>
                 <p className="text-muted-foreground max-w-2xl mx-auto">
-                  Our platform combines cutting-edge technology with agricultural expertise to help farmers make smarter decisions.
+                  {t('features.subtitle')}
                 </p>
               </div>
               
@@ -92,9 +89,9 @@ const Index = () => {
                   <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
                     <Leaf className="w-6 h-6 text-primary" />
                   </div>
-                  <h3 className="text-xl font-semibold mb-2">Precision Agriculture</h3>
+                  <h3 className="text-xl font-semibold mb-2">{t('features.precision.title')}</h3>
                   <p className="text-muted-foreground">
-                    Get recommendations tailored to your specific location and environmental conditions.
+                    {t('features.precision.desc')}
                   </p>
                 </div>
                 
@@ -102,9 +99,9 @@ const Index = () => {
                   <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
                     <Wheat className="w-6 h-6 text-primary" />
                   </div>
-                  <h3 className="text-xl font-semibold mb-2">Crop Optimization</h3>
+                  <h3 className="text-xl font-semibold mb-2">{t('features.optimization.title')}</h3>
                   <p className="text-muted-foreground">
-                    Maximize yields and minimize resource usage with intelligent crop selection.
+                    {t('features.optimization.desc')}
                   </p>
                 </div>
                 
@@ -112,9 +109,9 @@ const Index = () => {
                   <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
                     <ArrowRight className="w-6 h-6 text-primary" />
                   </div>
-                  <h3 className="text-xl font-semibold mb-2">Easy to Use</h3>
+                  <h3 className="text-xl font-semibold mb-2">{t('features.easy.title')}</h3>
                   <p className="text-muted-foreground">
-                    Simple interface that provides powerful insights without the complexity.
+                    {t('features.easy.desc')}
                   </p>
                 </div>
               </div>
