@@ -1,50 +1,56 @@
-
 import { useEffect, useState } from 'react';
 import { Leaf, Droplets, Sun, ThermometerSun, Sparkles } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
-// Mock data for crop recommendations
+// India-specific crop recommendations data
 const cropData = {
   tropical: {
-    clay: ['Rice', 'Sugarcane', 'Banana'],
-    silt: ['Cacao', 'Coffee', 'Pineapple'],
-    sand: ['Coconut', 'Cashew', 'Cassava'],
-    loam: ['Avocado', 'Mango', 'Papaya'],
-    peat: ['Taro', 'Yam', 'Sweet Potato'],
-    chalk: ['Sisal', 'Agave', 'Guava'],
+    alluvial: ['Rice', 'Banana', 'Sugarcane'],
+    black: ['Cotton', 'Sugarcane', 'Turmeric'],
+    red: ['Groundnut', 'Millet', 'Cashew'],
+    laterite: ['Coconut', 'Rubber', 'Cashew'],
+    arid: ['Dates', 'Pearl Millet', 'Cluster Bean'],
+    mountain: ['Tea', 'Cardamom', 'Ginger'],
   },
-  dry: {
-    clay: ['Sorghum', 'Cotton', 'Safflower'],
-    silt: ['Chickpea', 'Millet', 'Barley'],
-    sand: ['Date Palm', 'Jojoba', 'Olive'],
-    loam: ['Grapes', 'Pomegranate', 'Fig'],
-    peat: ['Jatropha', 'Aloe Vera', 'Neem'],
-    chalk: ['Almonds', 'Pistachios', 'Oregano'],
+  subtropical: {
+    alluvial: ['Wheat', 'Rice', 'Maize'],
+    black: ['Cotton', 'Soybean', 'Pigeon Pea'],
+    red: ['Lentil', 'Chickpea', 'Rice'],
+    laterite: ['Cashew', 'Mango', 'Pineapple'],
+    arid: ['Millet', 'Mustard', 'Chickpea'],
+    mountain: ['Apple', 'Maize', 'Potato'],
   },
-  temperate: {
-    clay: ['Corn', 'Beans', 'Cabbage'],
-    silt: ['Wheat', 'Rye', 'Oats'],
-    sand: ['Strawberry', 'Carrot', 'Onion'],
-    loam: ['Apple', 'Tomato', 'Potato'],
-    peat: ['Blueberry', 'Cranberry', 'Raspberry'],
-    chalk: ['Lavender', 'Rosemary', 'Thyme'],
+  arid: {
+    alluvial: ['Pearl Millet', 'Cluster Bean', 'Moth Bean'],
+    black: ['Cotton', 'Sorghum', 'Pigeon Pea'],
+    red: ['Sorghum', 'Groundnut', 'Sesame'],
+    laterite: ['Cashew', 'Coconut', 'Mango'],
+    arid: ['Pearl Millet', 'Cluster Bean', 'Mustard'],
+    mountain: ['Barley', 'Peas', 'Mustard'],
   },
-  continental: {
-    clay: ['Sunflower', 'Flax', 'Canola'],
-    silt: ['Maple', 'Barley', 'Buckwheat'],
-    sand: ['Rye', 'Elderberry', 'Asparagus'],
-    loam: ['Cherry', 'Plum', 'Pear'],
-    peat: ['Blackberry', 'Lingonberry', 'Strawberry'],
-    chalk: ['Walnut', 'Hazelnut', 'Cherry'],
+  humid: {
+    alluvial: ['Rice', 'Jute', 'Tea'],
+    black: ['Rice', 'Sugarcane', 'Jute'],
+    red: ['Rice', 'Pineapple', 'Banana'],
+    laterite: ['Tea', 'Rubber', 'Spices'],
+    arid: ['Rice', 'Jute', 'Sugarcane'],
+    mountain: ['Tea', 'Ginger', 'Cardamom'],
   },
-  polar: {
-    clay: ['Barley', 'Rye', 'Oats'],
-    silt: ['Cabbage', 'Kale', 'Radish'],
-    sand: ['Potato', 'Turnip', 'Carrot'],
-    loam: ['Arctic Berries', 'Rhubarb', 'Chives'],
-    peat: ['Cloudberry', 'Lingonberry', 'Bilberry'],
-    chalk: ['Hardy Herbs', 'Thyme', 'Sorrel'],
+  mountain: {
+    alluvial: ['Rice', 'Wheat', 'Maize'],
+    black: ['Wheat', 'Peas', 'Barley'],
+    red: ['Wheat', 'Barley', 'Potato'],
+    laterite: ['Tea', 'Cardamom', 'Ginger'],
+    arid: ['Barley', 'Buckwheat', 'Peas'],
+    mountain: ['Apple', 'Potato', 'Peas'],
   },
+};
+
+// Season-based crop recommendations for Indian agricultural seasons
+const seasonalCrops = {
+  kharif: ['Rice', 'Maize', 'Sorghum', 'Cotton', 'Groundnut', 'Soybean', 'Pigeon Pea', 'Green Gram', 'Black Gram'],
+  rabi: ['Wheat', 'Barley', 'Gram', 'Linseed', 'Mustard', 'Peas', 'Potato', 'Lentil', 'Chickpea'],
+  zaid: ['Watermelon', 'Muskmelon', 'Cucumber', 'Vegetables', 'Fodder Crops', 'Green Gram', 'Pumpkin']
 };
 
 // Types for our recommendation
@@ -56,6 +62,7 @@ export interface Crop {
   idealTemperature: string;
   soilPh: string;
   yield: string;
+  seasonality: string;
 }
 
 interface RecommendationProps {
@@ -80,27 +87,80 @@ const RecommendationCard = ({ location, formData }: RecommendationProps) => {
   const [loading, setLoading] = useState(false);
 
   // Generate detailed information for a crop
-  const getDetailedCropInfo = (cropName: string, preferredCrops: string[]): Crop => {
+  const getDetailedCropInfo = (cropName: string, preferredCrops: string[], currentSeason: string): Crop => {
     // Calculate preference match based on user's interested crops
     const isPreferred = preferredCrops.some(preferred => 
       cropName.toLowerCase().includes(preferred.toLowerCase())
     );
     
-    // This would normally come from an API, but we're generating it for demo purposes
-    const waterNeeds = Math.floor(Math.random() * 70) + 30; // 30-100
-    const growthPeriods = ['60-90 days', '3-4 months', '4-6 months', '6-8 months'];
-    const temperatures = ['18-24°C', '20-30°C', '15-21°C', '24-32°C'];
-    const soilPh = [`${(Math.random() * 3 + 5).toFixed(1)}-${(Math.random() * 2 + 7).toFixed(1)}`];
-    const yields = ['1.5-3 tons/acre', '2-4 tons/acre', '3-5 tons/acre', '0.5-2 tons/acre'];
+    // Check if crop is suitable for current season
+    const isSeasonalCrop = seasonalCrops[currentSeason as keyof typeof seasonalCrops]?.includes(cropName);
+    
+    // Water needs based on climate
+    const baseWaterNeeds = location?.climate === 'arid' ? 80 : 
+                          location?.climate === 'humid' ? 40 : 
+                          location?.climate === 'tropical' ? 60 : 50;
+    
+    const waterNeeds = isPreferred ? Math.min(baseWaterNeeds + 10, 90) : baseWaterNeeds;
+    
+    // Growth periods typical for Indian crops
+    const growthPeriods = {
+      'Rice': '110-150 days',
+      'Wheat': '120-150 days',
+      'Maize': '80-110 days',
+      'Cotton': '160-180 days',
+      'Sugarcane': '10-12 months',
+      'Potato': '70-120 days',
+      'Soybean': '90-120 days',
+    };
+    
+    // Get specific growth period or use a default range
+    const growthPeriod = growthPeriods[cropName as keyof typeof growthPeriods] || 
+                          (isSeasonalCrop ? '90-120 days' : '100-150 days');
+    
+    // Temperature ranges for Indian climate zones
+    const temperatureRanges = {
+      'tropical': '24-32°C',
+      'subtropical': '18-28°C',
+      'arid': '25-40°C',
+      'humid': '22-30°C',
+      'mountain': '10-20°C',
+    };
+    
+    const idealTemperature = temperatureRanges[location?.climate as keyof typeof temperatureRanges] || '20-30°C';
+    
+    // Soil pH ranges based on soil type
+    const soilPhRanges = {
+      'alluvial': '6.5-7.5',
+      'black': '7.5-8.5',
+      'red': '6.0-6.5',
+      'laterite': '5.5-6.5',
+      'arid': '7.0-8.5',
+      'mountain': '6.0-7.0',
+    };
+    
+    const soilPh = soilPhRanges[location?.soilType as keyof typeof soilPhRanges] || '6.5-7.5';
+    
+    // Yield estimates
+    const yieldRanges = ['2-3 tons/acre', '3-5 tons/acre', '1.5-2.5 tons/acre', '4-6 tons/acre'];
+    const yield = isPreferred ? yieldRanges[1] : yieldRanges[Math.floor(Math.random() * yieldRanges.length)];
+    
+    // Seasonality information
+    let seasonality = '';
+    if (seasonalCrops.kharif.includes(cropName)) seasonality += 'Kharif, ';
+    if (seasonalCrops.rabi.includes(cropName)) seasonality += 'Rabi, ';
+    if (seasonalCrops.zaid.includes(cropName)) seasonality += 'Zaid, ';
+    seasonality = seasonality ? seasonality.slice(0, -2) : 'Year-round';
     
     return {
       name: cropName,
-      description: `${cropName} is well-suited for the ${location?.climate} climate and thrives in ${location?.soilType} soil. It performs best during the ${location?.season} season.`,
-      waterNeeds: isPreferred ? 80 : waterNeeds, // Preferred crops get better water score
-      growthPeriod: growthPeriods[Math.floor(Math.random() * growthPeriods.length)],
-      idealTemperature: temperatures[Math.floor(Math.random() * temperatures.length)],
-      soilPh: soilPh[Math.floor(Math.random() * soilPh.length)],
-      yield: isPreferred ? yields[2] : yields[Math.floor(Math.random() * yields.length)], // Better yield for preferred crops
+      description: `${cropName} is well-suited for ${location?.climate} climate and thrives in ${location?.soilType} soil of India. It is typically grown during the ${seasonality} season${isSeasonalCrop ? ' (current season)' : ''}.`,
+      waterNeeds,
+      growthPeriod,
+      idealTemperature,
+      soilPh,
+      yield,
+      seasonality,
     };
   };
 
@@ -111,16 +171,32 @@ const RecommendationCard = ({ location, formData }: RecommendationProps) => {
     // Simulate API call delay
     setTimeout(() => {
       try {
-        if (!location?.climate || !location?.soilType) {
+        if (!location?.climate || !location?.soilType || !location?.season) {
           setRecommendations([]);
           setLoading(false);
           return;
         }
         
-        // Get crops based on detected climate and soil type
-        const eligibleCrops = cropData[location.climate as keyof typeof cropData]?.[
-          location.soilType as keyof (typeof cropData)[keyof typeof cropData]
+        // Ensure we have valid soil type and climate from Indian agriculture perspective
+        const soilType = location.soilType in {alluvial: 1, black: 1, red: 1, laterite: 1, arid: 1, mountain: 1} 
+                      ? location.soilType 
+                      : 'alluvial'; // Default to alluvial if unknown
+        
+        const climate = location.climate in {tropical: 1, subtropical: 1, arid: 1, humid: 1, mountain: 1}
+                      ? location.climate
+                      : 'subtropical'; // Default to subtropical if unknown
+        
+        // Get crops based on detected climate and soil type from our India-specific data
+        const eligibleCrops = cropData[climate as keyof typeof cropData]?.[
+          soilType as keyof (typeof cropData)[keyof typeof cropData]
         ] || [];
+        
+        // Add seasonal crops based on current season if not already included
+        const currentSeason = location.season || 'kharif';
+        const seasonalCropRecommendations = seasonalCrops[currentSeason as keyof typeof seasonalCrops] || [];
+        
+        // Combine eligible crops with additional seasonal options
+        const combinedCrops = [...new Set([...eligibleCrops, ...seasonalCropRecommendations.slice(0, 3)])];
         
         // Process user's interested crops
         const userCrops = formData.interestedCrops
@@ -129,10 +205,17 @@ const RecommendationCard = ({ location, formData }: RecommendationProps) => {
           .filter(crop => crop !== '');
         
         // Generate detailed info for each crop
-        const detailedRecommendations = eligibleCrops
-          .map(cropName => getDetailedCropInfo(cropName, userCrops))
+        const detailedRecommendations = combinedCrops
+          .map(cropName => getDetailedCropInfo(cropName, userCrops, currentSeason))
           .sort((a, b) => {
-            // Sort by user preference first, then by water needs
+            // Sort by current season match first
+            const aCurrentSeason = a.seasonality.includes(currentSeason);
+            const bCurrentSeason = b.seasonality.includes(currentSeason);
+            
+            if (aCurrentSeason && !bCurrentSeason) return -1;
+            if (!aCurrentSeason && bCurrentSeason) return 1;
+            
+            // Then by user preference
             const aPreferred = userCrops.some(crop => 
               a.name.toLowerCase().includes(crop.toLowerCase())
             );
@@ -143,15 +226,12 @@ const RecommendationCard = ({ location, formData }: RecommendationProps) => {
             if (aPreferred && !bPreferred) return -1;
             if (!aPreferred && bPreferred) return 1;
             
-            // Then sort by water efficiency for the current season
-            const waterEfficiency = (crop: Crop) => {
-              if (location.season === 'summer' || location.season === 'dry') {
-                return -crop.waterNeeds; // Lower water needs better in dry seasons
-              }
-              return 0; // No preference in other seasons
-            };
+            // Finally by water efficiency in arid/dry conditions
+            if (location.climate === 'arid') {
+              return a.waterNeeds - b.waterNeeds;
+            }
             
-            return waterEfficiency(b) - waterEfficiency(a);
+            return 0;
           });
         
         setRecommendations(detailedRecommendations);
@@ -247,9 +327,13 @@ const RecommendationCard = ({ location, formData }: RecommendationProps) => {
                   <ThermometerSun className="w-4 h-4 mr-1.5 text-primary" />
                   <span>{crop.idealTemperature}</span>
                 </div>
-                <div className="flex items-center text-sm col-span-2">
+                <div className="flex items-center text-sm">
                   <Sun className="w-4 h-4 mr-1.5 text-primary" />
                   <span>{t('recommendations.growth')}: {crop.growthPeriod}</span>
+                </div>
+                <div className="flex items-center text-sm">
+                  <Leaf className="w-4 h-4 mr-1.5 text-primary" />
+                  <span>Seasons: {crop.seasonality}</span>
                 </div>
               </div>
             </div>

@@ -1,5 +1,5 @@
 
-// Soil type and climate determination based on location
+// Soil type and climate determination specifically for India
 
 interface SoilData {
   soilType: string;
@@ -18,77 +18,96 @@ interface LocationData {
   climate: ClimateData;
 }
 
-// Using a simple algorithm to determine soil type and climate based on coordinates
-// In a real application, this would connect to a soil and climate API
+// Using a region-specific algorithm to determine soil type and climate based on coordinates in India
+// In a real application, this would connect to a soil and climate API with India-specific data
 export const getSoilAndClimateFromLocation = (latitude: number, longitude: number): { soilType: string; climate: string } => {
-  // This is a simplified mapping based on rough geographical patterns
-  // In reality, soil type and climate are much more complex
+  // Check if coordinates are likely within India (rough bounding box)
+  const isInIndia = (latitude >= 8.0 && latitude <= 37.0 && longitude >= 68.0 && longitude <= 97.0);
   
-  // Simple soil determination based on latitude
-  let soilType = 'loam'; // default
-  
-  // Tropical/equatorial regions often have clay-heavy soils
-  if (Math.abs(latitude) < 15) {
-    soilType = 'clay';
-  }
-  // Desert regions often have sandy soils
-  else if ((Math.abs(latitude) >= 15 && Math.abs(latitude) < 35) && 
-          (longitude > -20 && longitude < 50 || longitude > 100 && longitude < 140)) {
-    soilType = 'sand';
-  }
-  // Temperate regions often have silt or loam
-  else if (Math.abs(latitude) >= 35 && Math.abs(latitude) < 55) {
-    soilType = Math.random() > 0.5 ? 'silt' : 'loam';
-  }
-  // Northern regions more likely to have peat
-  else if (Math.abs(latitude) >= 55) {
-    soilType = Math.random() > 0.7 ? 'peat' : 'loam';
+  // Default for locations outside India or fallback
+  if (!isInIndia) {
+    return { soilType: 'loam', climate: 'temperate' };
   }
   
-  // Simple climate determination
-  let climate = 'temperate'; // default
+  // India-specific soil determination based on regions
+  let soilType = 'alluvial'; // Most common in India
   
-  // Tropical near equator
-  if (Math.abs(latitude) < 15) {
+  // Northern Plains (Indo-Gangetic plains)
+  if (latitude >= 24.0 && latitude <= 32.0 && longitude >= 75.0 && longitude <= 88.0) {
+    soilType = 'alluvial';
+  }
+  // Western India (Rajasthan, Gujarat)
+  else if (latitude >= 20.0 && latitude <= 30.0 && longitude >= 68.0 && longitude <= 77.0) {
+    soilType = 'arid';
+  }
+  // Deccan Plateau (Central and Southern)
+  else if (latitude >= 10.0 && latitude <= 20.0 && longitude >= 73.0 && longitude <= 83.0) {
+    soilType = 'black'; // Black cotton soil/regur
+  }
+  // Eastern India and coastal regions
+  else if ((latitude >= 20.0 && latitude <= 25.0 && longitude >= 85.0 && longitude <= 93.0) || 
+           (Math.abs(longitude - 80.0) <= 2.0 && latitude <= 15.0)) {
+    soilType = 'red';
+  }
+  // Himalayan Region
+  else if (latitude >= 28.0 && latitude <= 37.0 && longitude >= 73.0 && longitude <= 97.0) {
+    soilType = 'mountain';
+  }
+  // Kerala, Western Ghats
+  else if (latitude >= 8.0 && latitude <= 15.0 && longitude >= 74.0 && longitude <= 78.0) {
+    soilType = 'laterite';
+  }
+  
+  // India-specific climate determination
+  let climate = 'subtropical'; // Default for most of India
+  
+  // Himalayan Region - Alpine/Mountain
+  if (latitude >= 28.0 && latitude <= 37.0 && longitude >= 73.0 && longitude <= 97.0) {
+    climate = 'mountain';
+  }
+  // Western Arid - Thar Desert
+  else if (latitude >= 24.0 && latitude <= 30.0 && longitude >= 68.0 && longitude <= 75.0) {
+    climate = 'arid';
+  }
+  // Coastal regions
+  else if ((Math.abs(longitude - 73.0) <= 1.5 && latitude <= 22.0) || // Western Coast
+           (Math.abs(longitude - 80.0) <= 2.0 && latitude <= 15.0)) { // Eastern Coast
     climate = 'tropical';
   }
-  // Desert/arid zones
-  else if ((Math.abs(latitude) >= 15 && Math.abs(latitude) < 35) &&
-          (longitude > -20 && longitude < 50 || longitude > 100 && longitude < 140)) {
-    climate = 'dry';
+  // Northeast India
+  else if (latitude >= 22.0 && latitude <= 29.0 && longitude >= 88.0 && longitude <= 97.0) {
+    climate = 'humid';
   }
-  // Temperate
-  else if (Math.abs(latitude) >= 35 && Math.abs(latitude) < 55) {
-    climate = 'temperate';
+  // Central India
+  else if (latitude >= 17.0 && latitude <= 25.0 && longitude >= 75.0 && longitude <= 87.0) {
+    climate = 'subtropical';
   }
-  // Cold continental or polar
-  else if (Math.abs(latitude) >= 55 && Math.abs(latitude) < 70) {
-    climate = 'continental';
-  }
-  else {
-    climate = 'polar';
+  // Southern Peninsula
+  else if (latitude <= 17.0) {
+    climate = 'tropical';
   }
   
   return { soilType, climate };
 };
 
-// Determine the current growing season based on location and date
+// Determine the current growing season based on Indian agricultural seasons
 export const getCurrentSeason = (latitude: number): string => {
   const now = new Date();
   const month = now.getMonth();
   
-  // Northern hemisphere
-  if (latitude > 0) {
-    if (month >= 2 && month <= 4) return 'spring';
-    if (month >= 5 && month <= 7) return 'summer';
-    if (month >= 8 && month <= 10) return 'fall';
-    return 'winter';
-  } 
-  // Southern hemisphere (seasons reversed)
+  // Indian agricultural seasons are different from Western seasons
+  // Kharif (Monsoon), Rabi (Winter), Zaid (Summer)
+  
+  // Kharif season: June to October (Monsoon crops)
+  if (month >= 5 && month <= 9) {
+    return 'kharif';
+  }
+  // Rabi season: November to March (Winter crops)
+  else if (month >= 10 || month <= 2) {
+    return 'rabi';
+  }
+  // Zaid season: March to June (Summer crops)
   else {
-    if (month >= 2 && month <= 4) return 'fall';
-    if (month >= 5 && month <= 7) return 'winter';
-    if (month >= 8 && month <= 10) return 'spring';
-    return 'summer';
+    return 'zaid';
   }
 };
