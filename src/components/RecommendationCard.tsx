@@ -1,6 +1,5 @@
-
 import { useEffect, useState } from 'react';
-import { Leaf, Droplets, Sun, ThermometerSun, Sparkles } from 'lucide-react';
+import { Leaf, Droplets, Sun, ThermometerSun, Sparkles, Cloud } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
 // India-specific crop recommendations data
@@ -13,38 +12,7 @@ const cropData = {
     arid: ['Dates', 'Pearl Millet', 'Cluster Bean'],
     mountain: ['Tea', 'Cardamom', 'Ginger'],
   },
-  subtropical: {
-    alluvial: ['Wheat', 'Rice', 'Maize'],
-    black: ['Cotton', 'Soybean', 'Pigeon Pea'],
-    red: ['Lentil', 'Chickpea', 'Rice'],
-    laterite: ['Cashew', 'Mango', 'Pineapple'],
-    arid: ['Millet', 'Mustard', 'Chickpea'],
-    mountain: ['Apple', 'Maize', 'Potato'],
-  },
-  arid: {
-    alluvial: ['Pearl Millet', 'Cluster Bean', 'Moth Bean'],
-    black: ['Cotton', 'Sorghum', 'Pigeon Pea'],
-    red: ['Sorghum', 'Groundnut', 'Sesame'],
-    laterite: ['Cashew', 'Coconut', 'Mango'],
-    arid: ['Pearl Millet', 'Cluster Bean', 'Mustard'],
-    mountain: ['Barley', 'Peas', 'Mustard'],
-  },
-  humid: {
-    alluvial: ['Rice', 'Jute', 'Tea'],
-    black: ['Rice', 'Sugarcane', 'Jute'],
-    red: ['Rice', 'Pineapple', 'Banana'],
-    laterite: ['Tea', 'Rubber', 'Spices'],
-    arid: ['Rice', 'Jute', 'Sugarcane'],
-    mountain: ['Tea', 'Ginger', 'Cardamom'],
-  },
-  mountain: {
-    alluvial: ['Rice', 'Wheat', 'Maize'],
-    black: ['Wheat', 'Peas', 'Barley'],
-    red: ['Wheat', 'Barley', 'Potato'],
-    laterite: ['Tea', 'Cardamom', 'Ginger'],
-    arid: ['Barley', 'Buckwheat', 'Peas'],
-    mountain: ['Apple', 'Potato', 'Peas'],
-  },
+  // ... keep existing code (all other climate and soil type crop data)
 };
 
 // Season-based crop recommendations for Indian agricultural seasons
@@ -52,6 +20,63 @@ const seasonalCrops = {
   kharif: ['Rice', 'Maize', 'Sorghum', 'Cotton', 'Groundnut', 'Soybean', 'Pigeon Pea', 'Green Gram', 'Black Gram'],
   rabi: ['Wheat', 'Barley', 'Gram', 'Linseed', 'Mustard', 'Peas', 'Potato', 'Lentil', 'Chickpea'],
   zaid: ['Watermelon', 'Muskmelon', 'Cucumber', 'Vegetables', 'Fodder Crops', 'Green Gram', 'Pumpkin']
+};
+
+// Crop-specific data for more accurate recommendations
+const cropSpecificData = {
+  // Kharif crops
+  'Rice': { waterNeeds: 85, idealTemp: '24-30°C', minRainfall: 1000, maxRainfall: 2000 },
+  'Maize': { waterNeeds: 65, idealTemp: '21-27°C', minRainfall: 500, maxRainfall: 800 },
+  'Sorghum': { waterNeeds: 55, idealTemp: '26-30°C', minRainfall: 450, maxRainfall: 650 },
+  'Cotton': { waterNeeds: 60, idealTemp: '25-35°C', minRainfall: 600, maxRainfall: 1200 },
+  'Groundnut': { waterNeeds: 50, idealTemp: '25-30°C', minRainfall: 500, maxRainfall: 700 },
+  'Soybean': { waterNeeds: 60, idealTemp: '20-30°C', minRainfall: 600, maxRainfall: 900 },
+  'Pigeon Pea': { waterNeeds: 45, idealTemp: '25-30°C', minRainfall: 400, maxRainfall: 700 },
+  
+  // Rabi crops
+  'Wheat': { waterNeeds: 55, idealTemp: '15-24°C', minRainfall: 450, maxRainfall: 650 },
+  'Barley': { waterNeeds: 45, idealTemp: '12-20°C', minRainfall: 300, maxRainfall: 500 },
+  'Gram': { waterNeeds: 40, idealTemp: '20-25°C', minRainfall: 350, maxRainfall: 500 },
+  'Mustard': { waterNeeds: 35, idealTemp: '10-25°C', minRainfall: 300, maxRainfall: 450 },
+  'Peas': { waterNeeds: 50, idealTemp: '12-18°C', minRainfall: 400, maxRainfall: 600 },
+  'Potato': { waterNeeds: 65, idealTemp: '15-20°C', minRainfall: 450, maxRainfall: 650 },
+  'Lentil': { waterNeeds: 35, idealTemp: '18-25°C', minRainfall: 350, maxRainfall: 500 },
+  
+  // Zaid crops
+  'Watermelon': { waterNeeds: 70, idealTemp: '22-30°C', minRainfall: 400, maxRainfall: 600 },
+  'Muskmelon': { waterNeeds: 65, idealTemp: '24-32°C', minRainfall: 350, maxRainfall: 550 },
+  'Cucumber': { waterNeeds: 75, idealTemp: '18-24°C', minRainfall: 400, maxRainfall: 600 },
+  
+  // Other important crops
+  'Sugarcane': { waterNeeds: 80, idealTemp: '24-30°C', minRainfall: 1500, maxRainfall: 2500 },
+  'Banana': { waterNeeds: 75, idealTemp: '24-32°C', minRainfall: 1200, maxRainfall: 2200 },
+  'Tea': { waterNeeds: 70, idealTemp: '18-30°C', minRainfall: 1500, maxRainfall: 2500 },
+  'Coconut': { waterNeeds: 60, idealTemp: '27-32°C', minRainfall: 1200, maxRainfall: 2000 },
+  'Rubber': { waterNeeds: 75, idealTemp: '25-34°C', minRainfall: 2000, maxRainfall: 3000 },
+  'Apple': { waterNeeds: 55, idealTemp: '10-18°C', minRainfall: 800, maxRainfall: 1200 },
+  
+  // Default values
+  'default': { waterNeeds: 60, idealTemp: '20-30°C', minRainfall: 500, maxRainfall: 800 }
+};
+
+// Historical rainfall data for India (average annual in mm) by region
+const regionalRainfallData = {
+  'Karnataka': { current: 750, previous: 820 },
+  'Kerala': { current: 2800, previous: 3000 },
+  'Tamil Nadu': { current: 950, previous: 1000 },
+  'Andhra Pradesh': { current: 860, previous: 800 },
+  'Telangana': { current: 790, previous: 750 },
+  'Maharashtra': { current: 1200, previous: 1300 },
+  'Gujarat': { current: 620, previous: 580 },
+  'Rajasthan': { current: 350, previous: 380 },
+  'Punjab': { current: 570, previous: 550 },
+  'Haryana': { current: 490, previous: 510 },
+  'Uttar Pradesh': { current: 850, previous: 900 },
+  'Madhya Pradesh': { current: 950, previous: 1000 },
+  'Bihar': { current: 1050, previous: 1100 },
+  'West Bengal': { current: 1600, previous: 1750 },
+  'Assam': { current: 2200, previous: 2400 },
+  'default': { current: 900, previous: 950 }
 };
 
 // Types for our recommendation
@@ -62,8 +87,14 @@ export interface Crop {
   growthPeriod: string;
   idealTemperature: string;
   soilPh: string;
-  yieldEstimate: string; // Changed from yield to yieldEstimate
+  yieldEstimate: string; 
   seasonality: string;
+  rainfall: {
+    required: string;
+    current: number;
+    previous: number;
+    suitability: number;
+  };
 }
 
 interface RecommendationProps {
@@ -87,8 +118,30 @@ const RecommendationCard = ({ location, formData }: RecommendationProps) => {
   const [recommendations, setRecommendations] = useState<Crop[]>([]);
   const [loading, setLoading] = useState(false);
 
+  // Get rainfall data based on region
+  const getRainfallData = (region: string | undefined) => {
+    if (!region) return regionalRainfallData.default;
+    
+    // Check for exact match
+    if (region in regionalRainfallData) {
+      return regionalRainfallData[region as keyof typeof regionalRainfallData];
+    }
+    
+    // Check for partial match
+    for (const key of Object.keys(regionalRainfallData)) {
+      if (region.includes(key) || key.includes(region)) {
+        return regionalRainfallData[key as keyof typeof regionalRainfallData];
+      }
+    }
+    
+    return regionalRainfallData.default;
+  };
+
   // Generate detailed information for a crop
   const getDetailedCropInfo = (cropName: string, preferredCrops: string[], currentSeason: string): Crop => {
+    // Get crop-specific data or default values
+    const cropData = cropSpecificData[cropName as keyof typeof cropSpecificData] || cropSpecificData.default;
+    
     // Calculate preference match based on user's interested crops
     const isPreferred = preferredCrops.some(preferred => 
       cropName.toLowerCase().includes(preferred.toLowerCase())
@@ -97,12 +150,9 @@ const RecommendationCard = ({ location, formData }: RecommendationProps) => {
     // Check if crop is suitable for current season
     const isSeasonalCrop = seasonalCrops[currentSeason as keyof typeof seasonalCrops]?.includes(cropName);
     
-    // Water needs based on climate
-    const baseWaterNeeds = location?.climate === 'arid' ? 80 : 
-                          location?.climate === 'humid' ? 40 : 
-                          location?.climate === 'tropical' ? 60 : 50;
-    
-    const waterNeeds = isPreferred ? Math.min(baseWaterNeeds + 10, 90) : baseWaterNeeds;
+    // Water needs - use crop-specific data
+    const baseWaterNeeds = cropData.waterNeeds;
+    const waterNeeds = isPreferred ? Math.min(baseWaterNeeds + 5, 95) : baseWaterNeeds;
     
     // Growth periods typical for Indian crops
     const growthPeriods = {
@@ -119,16 +169,8 @@ const RecommendationCard = ({ location, formData }: RecommendationProps) => {
     const growthPeriod = growthPeriods[cropName as keyof typeof growthPeriods] || 
                           (isSeasonalCrop ? '90-120 days' : '100-150 days');
     
-    // Temperature ranges for Indian climate zones
-    const temperatureRanges = {
-      'tropical': '24-32°C',
-      'subtropical': '18-28°C',
-      'arid': '25-40°C',
-      'humid': '22-30°C',
-      'mountain': '10-20°C',
-    };
-    
-    const idealTemperature = temperatureRanges[location?.climate as keyof typeof temperatureRanges] || '20-30°C';
+    // Use crop-specific temperature range
+    const idealTemperature = cropData.idealTemp;
     
     // Soil pH ranges based on soil type
     const soilPhRanges = {
@@ -146,6 +188,29 @@ const RecommendationCard = ({ location, formData }: RecommendationProps) => {
     const yieldRanges = ['2-3 tons/acre', '3-5 tons/acre', '1.5-2.5 tons/acre', '4-6 tons/acre'];
     const yieldEstimate = isPreferred ? yieldRanges[1] : yieldRanges[Math.floor(Math.random() * yieldRanges.length)];
     
+    // Get rainfall data for the region
+    const rainfallData = getRainfallData(location?.region);
+    
+    // Calculate rainfall suitability (0-100%)
+    const minRequired = cropData.minRainfall;
+    const maxRequired = cropData.maxRainfall;
+    const currentRainfall = rainfallData.current;
+    
+    let rainfallSuitability = 0;
+    if (currentRainfall < minRequired) {
+      // Below minimum - partial suitability based on how close to minimum
+      rainfallSuitability = Math.round((currentRainfall / minRequired) * 70);
+    } else if (currentRainfall > maxRequired) {
+      // Above maximum - partial suitability based on how much above maximum
+      const excessFactor = (currentRainfall - maxRequired) / maxRequired;
+      rainfallSuitability = Math.round(Math.max(0, 100 - (excessFactor * 100)));
+    } else {
+      // Within range - full suitability with peak at optimal (midpoint)
+      const optimalRainfall = (minRequired + maxRequired) / 2;
+      const distanceFromOptimal = Math.abs(currentRainfall - optimalRainfall) / (maxRequired - minRequired);
+      rainfallSuitability = Math.round(100 - (distanceFromOptimal * 20));
+    }
+    
     // Seasonality information
     let seasonality = '';
     if (seasonalCrops.kharif.includes(cropName)) seasonality += 'Kharif, ';
@@ -160,8 +225,14 @@ const RecommendationCard = ({ location, formData }: RecommendationProps) => {
       growthPeriod,
       idealTemperature,
       soilPh,
-      yieldEstimate, // Changed from yield to yieldEstimate
+      yieldEstimate,
       seasonality,
+      rainfall: {
+        required: `${minRequired}-${maxRequired} mm`,
+        current: rainfallData.current,
+        previous: rainfallData.previous,
+        suitability: rainfallSuitability
+      }
     };
   };
 
@@ -215,6 +286,11 @@ const RecommendationCard = ({ location, formData }: RecommendationProps) => {
             
             if (aCurrentSeason && !bCurrentSeason) return -1;
             if (!aCurrentSeason && bCurrentSeason) return 1;
+            
+            // Then by rainfall suitability
+            if (Math.abs(a.rainfall.suitability - b.rainfall.suitability) > 15) {
+              return b.rainfall.suitability - a.rainfall.suitability;
+            }
             
             // Then by user preference
             const aPreferred = userCrops.some(crop => 
@@ -336,6 +412,10 @@ const RecommendationCard = ({ location, formData }: RecommendationProps) => {
                   <Leaf className="w-4 h-4 mr-1.5 text-primary" />
                   <span>Seasons: {crop.seasonality}</span>
                 </div>
+                <div className="flex items-center text-sm col-span-2">
+                  <Cloud className="w-4 h-4 mr-1.5 text-primary" />
+                  <span>Rainfall: {crop.rainfall.required} required | Current: {crop.rainfall.current} mm (Previous: {crop.rainfall.previous} mm) | Suitability: {crop.rainfall.suitability}%</span>
+                </div>
               </div>
             </div>
           ))}
@@ -352,3 +432,4 @@ const RecommendationCard = ({ location, formData }: RecommendationProps) => {
 };
 
 export default RecommendationCard;
+

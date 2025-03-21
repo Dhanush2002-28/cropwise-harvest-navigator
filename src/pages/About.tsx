@@ -1,6 +1,7 @@
+
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import { Leaf, Lightbulb, Users, Globe } from "lucide-react";
+import { Lightbulb, Users, Globe } from "lucide-react";
 
 const About = () => {
   return (
@@ -48,7 +49,12 @@ const About = () => {
                   <div className="aspect-square rounded-2xl overflow-hidden bg-nature-100 dark:bg-nature-900 relative">
                     <div className="absolute inset-0 bg-gradient-to-br from-nature-100/80 to-nature-300/50 dark:from-nature-800/80 dark:to-nature-600/30"></div>
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <Leaf className="w-24 h-24 text-primary/80" />
+                      {/* Replace Leaf icon with AgriVision logo */}
+                      <img 
+                        src="/lovable-uploads/28a87d9e-bf3b-4021-bd55-6a7c87f2f8f3.png" 
+                        alt="AgriVision Logo" 
+                        className="w-32 h-32 object-contain" 
+                      />
                     </div>
                   </div>
                 </div>
