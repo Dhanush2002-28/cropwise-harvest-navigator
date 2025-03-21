@@ -13,8 +13,8 @@ const LanguageSelector = () => {
     { code: 'en', name: t('language.en') },
     { code: 'hi', name: t('language.hi') },
     { code: 'kn', name: t('language.kn') },
-    { code: 'es', name: t('language.es') },
-    { code: 'fr', name: t('language.fr') },
+    { code: 'ta', name: t('language.ta') },
+    { code: 'bn', name: t('language.bn') },
   ];
 
   const toggleDropdown = () => setIsOpen(!isOpen);

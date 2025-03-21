@@ -19,7 +19,9 @@ const LanguageContext = createContext<LanguageContextType>({
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [language, setLanguageState] = useState<Language>(() => {
     const savedLanguage = localStorage.getItem('language') as Language;
-    return savedLanguage || defaultLanguage;
+    return savedLanguage && ['en', 'hi', 'kn', 'ta', 'bn'].includes(savedLanguage) 
+      ? savedLanguage 
+      : defaultLanguage;
   });
 
   const setLanguage = (newLanguage: Language) => {

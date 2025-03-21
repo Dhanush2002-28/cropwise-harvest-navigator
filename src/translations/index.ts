@@ -1,5 +1,5 @@
 
-export type Language = 'en' | 'hi' | 'kn' | 'es' | 'fr';
+export type Language = 'en' | 'hi' | 'kn' | 'ta' | 'bn';
 
 interface Translations {
   [language: string]: {
@@ -68,8 +68,8 @@ export const translations: Translations = {
     'language.en': 'English',
     'language.hi': 'हिंदी (Hindi)',
     'language.kn': 'ಕನ್ನಡ (Kannada)',
-    'language.es': 'Español (Spanish)',
-    'language.fr': 'Français (French)',
+    'language.ta': 'தமிழ் (Tamil)',
+    'language.bn': 'বাংলা (Bengali)',
   },
   
   hi: {
@@ -132,8 +132,8 @@ export const translations: Translations = {
     'language.en': 'English',
     'language.hi': 'हिंदी',
     'language.kn': 'ಕನ್ನಡ',
-    'language.es': 'Español',
-    'language.fr': 'Français',
+    'language.ta': 'தமிழ்',
+    'language.bn': 'বাংলা',
   },
   
   kn: {
@@ -196,135 +196,135 @@ export const translations: Translations = {
     'language.en': 'English',
     'language.hi': 'हिंदी',
     'language.kn': 'ಕನ್ನಡ',
-    'language.es': 'Español',
-    'language.fr': 'Français',
+    'language.ta': 'தமிழ்',
+    'language.bn': 'বাংলা',
   },
   
-  es: {
+  ta: {
     // Navbar
-    'nav.home': 'Inicio',
-    'nav.about': 'Acerca de',
-    'nav.contact': 'Contacto',
+    'nav.home': 'முகப்பு',
+    'nav.about': 'எங்களை பற்றி',
+    'nav.contact': 'தொடர்பு',
     
     // Hero
-    'hero.title': 'Soluciones Agrícolas Inteligentes',
-    'hero.subtitle': 'Obtenga recomendaciones personalizadas de cultivos basadas en su ubicación',
-    'hero.cta': 'Comenzar',
+    'hero.title': 'புத்திசாலித்தனமான விவசாய தீர்வுகள்',
+    'hero.subtitle': 'உங்கள் இருப்பிடத்தை அடிப்படையாகக் கொண்ட தனிப்பயனாக்கப்பட்ட பயிர் பரிந்துரைகளைப் பெறுங்கள்',
+    'hero.cta': 'தொடங்குக',
     
     // Location
-    'location.title': 'Su Ubicación',
-    'location.detecting': 'Detectando ubicación...',
-    'location.city': 'Ciudad',
-    'location.region': 'Región',
-    'location.country': 'País',
-    'location.coordinates': 'Coordenadas',
-    'location.refresh': 'Actualizar Ubicación',
-    'location.detect': 'Detectar Mi Ubicación',
-    'location.error': 'Error al obtener la ubicación',
-    'location.try_again': 'Intentar de nuevo',
+    'location.title': 'உங்கள் இருப்பிடம்',
+    'location.detecting': 'இருப்பிடத்தைக் கண்டறிகிறது...',
+    'location.city': 'நகரம்',
+    'location.region': 'பகுதி',
+    'location.country': 'நாடு',
+    'location.coordinates': 'ஒருங்கிணைப்புகள்',
+    'location.refresh': 'இருப்பிடத்தை புதுப்பிக்கவும்',
+    'location.detect': 'எனது இருப்பிடத்தைக் கண்டறியவும்',
+    'location.error': 'இருப்பிடத்தைப் பெற முடியவில்லை',
+    'location.try_again': 'மீண்டும் முயற்சிக்கவும்',
     
     // Crop Form
-    'crops.title': 'Cultivos que le Interesan',
-    'crops.input': 'Ingrese cultivos que le interesa cultivar',
-    'crops.placeholder': 'Ej. Arroz, Trigo, Maíz (separados por comas)',
-    'crops.submit': 'Obtener Recomendaciones',
+    'crops.title': 'நீங்கள் விரும்பும் பயிர்கள்',
+    'crops.input': 'நீங்கள் வளர்க்க விரும்பும் பயிர்களை உள்ளிடவும்',
+    'crops.placeholder': 'எ.கா. அரிசி, கோதுமை, சோளம் (காற்புள்ளியால் பிரிக்கப்பட்டது)',
+    'crops.submit': 'பரிந்துரைகளைப் பெறுக',
     
     // Recommendations
-    'recommendations.title': 'Cultivos Recomendados',
-    'recommendations.based_on': 'Basado en su ubicación',
-    'recommendations.best_match': 'Mejor Opción',
-    'recommendations.water': 'Agua',
-    'recommendations.temperature': 'Temperatura',
-    'recommendations.growth': 'Crecimiento',
-    'recommendations.waiting': 'Esperando sus Preferencias',
-    'recommendations.fill_form': 'Comparta su ubicación e intereses de cultivo para obtener recomendaciones personalizadas.',
-    'recommendations.no_results': 'No hay recomendaciones de cultivos disponibles para su ubicación. Por favor, intente con una ubicación diferente.',
+    'recommendations.title': 'பரிந்துரைக்கப்பட்ட பயிர்கள்',
+    'recommendations.based_on': 'உங்கள் இருப்பிடத்தின் அடிப்படையில்',
+    'recommendations.best_match': 'சிறந்த பொருத்தம்',
+    'recommendations.water': 'நீர்',
+    'recommendations.temperature': 'வெப்பநிலை',
+    'recommendations.growth': 'வளர்ச்சி',
+    'recommendations.waiting': 'உங்கள் விருப்பங்களுக்காக காத்திருக்கிறது',
+    'recommendations.fill_form': 'தனிப்பயனாக்கப்பட்ட பயிர் பரிந்துரைகளைப் பெற உங்கள் இருப்பிடம் மற்றும் பயிர் ஆர்வங்களைப் பகிர்ந்து கொள்ளுங்கள்.',
+    'recommendations.no_results': 'உங்கள் இருப்பிடத்திற்கு பயிர் பரிந்துரைகள் எதுவும் இல்லை. தயவுசெய்து வேறு இருப்பிடத்தை முயற்சிக்கவும்.',
     
     // Features
-    'features.title': 'Por qué Elegir AgriVision',
-    'features.subtitle': 'Nuestra plataforma combina tecnología de vanguardia con experiencia agrícola para ayudar a los agricultores a tomar decisiones más inteligentes.',
-    'features.precision.title': 'Agricultura de Precisión',
-    'features.precision.desc': 'Obtenga recomendaciones adaptadas a su ubicación específica y condiciones ambientales.',
-    'features.optimization.title': 'Optimización de Cultivos',
-    'features.optimization.desc': 'Maximice el rendimiento y minimice el uso de recursos con la selección inteligente de cultivos.',
-    'features.easy.title': 'Fácil de Usar',
-    'features.easy.desc': 'Interfaz simple que proporciona información poderosa sin la complejidad.',
+    'features.title': 'ஏன் AgriVision ஐத் தேர்ந்தெடுக்க வேண்டும்',
+    'features.subtitle': 'எங்கள் தளம் விவசாயிகள் சிறந்த முடிவுகளை எடுக்க உதவ நவீன தொழில்நுட்பத்தை விவசாய நிபுணத்துவத்துடன் இணைக்கிறது.',
+    'features.precision.title': 'துல்லியமான விவசாயம்',
+    'features.precision.desc': 'உங்கள் குறிப்பிட்ட இருப்பிடம் மற்றும் சுற்றுச்சூழல் நிலைமைகளுக்கு ஏற்ப பரிந்துரைகளைப் பெறுங்கள்.',
+    'features.optimization.title': 'பயிர் தேர்வு மேம்படுத்தல்',
+    'features.optimization.desc': 'புத்திசாலித்தனமான பயிர் தேர்வுடன் மகசூலை அதிகரிக்கவும் மற்றும் வள பயன்பாட்டைக் குறைக்கவும்.',
+    'features.easy.title': 'பயன்படுத்த எளிதானது',
+    'features.easy.desc': 'சிக்கல் இல்லாமல் சக்திவாய்ந்த நுண்ணறிவுகளை வழங்கும் எளிய இடைமுகம்.',
     
     // Footer
-    'footer.quick_links': 'Enlaces Rápidos',
-    'footer.contact': 'Contacto',
-    'footer.rights': 'Todos los derechos reservados.',
+    'footer.quick_links': 'விரைவு இணைப்புகள்',
+    'footer.contact': 'தொடர்பு',
+    'footer.rights': 'அனைத்து உரிமைகளும் பாதுகாக்கப்பட்டவை.',
     
     // Language
-    'language': 'Idioma',
+    'language': 'மொழி',
     'language.en': 'English',
     'language.hi': 'हिंदी',
     'language.kn': 'ಕನ್ನಡ',
-    'language.es': 'Español',
-    'language.fr': 'Français',
+    'language.ta': 'தமிழ்',
+    'language.bn': 'বাংলা',
   },
   
-  fr: {
+  bn: {
     // Navbar
-    'nav.home': 'Accueil',
-    'nav.about': 'À Propos',
-    'nav.contact': 'Contact',
+    'nav.home': 'হোম',
+    'nav.about': 'আমাদের সম্পর্কে',
+    'nav.contact': 'যোগাযোগ',
     
     // Hero
-    'hero.title': 'Solutions Agricoles Intelligentes',
-    'hero.subtitle': 'Obtenez des recommandations de cultures personnalisées basées sur votre emplacement',
-    'hero.cta': 'Commencer',
+    'hero.title': 'বুদ্ধিমান কৃষি সমাধান',
+    'hero.subtitle': 'আপনার অবস্থানের উপর ভিত্তি করে ব্যক্তিগতকৃত ফসলের সুপারিশ পান',
+    'hero.cta': 'শুরু করুন',
     
     // Location
-    'location.title': 'Votre Emplacement',
-    'location.detecting': 'Détection de l\'emplacement...',
-    'location.city': 'Ville',
-    'location.region': 'Région',
-    'location.country': 'Pays',
-    'location.coordinates': 'Coordonnées',
-    'location.refresh': 'Actualiser l\'Emplacement',
-    'location.detect': 'Détecter Mon Emplacement',
-    'location.error': 'Échec de l\'obtention de l\'emplacement',
-    'location.try_again': 'Réessayer',
+    'location.title': 'আপনার অবস্থান',
+    'location.detecting': 'অবস্থান সনাক্ত করা হচ্ছে...',
+    'location.city': 'শহর',
+    'location.region': 'অঞ্চল',
+    'location.country': 'দেশ',
+    'location.coordinates': 'স্থানাঙ্ক',
+    'location.refresh': 'অবস্থান রিফ্রেশ করুন',
+    'location.detect': 'আমার অবস্থান সনাক্ত করুন',
+    'location.error': 'অবস্থান পেতে ব্যর্থ হয়েছে',
+    'location.try_again': 'আবার চেষ্টা করুন',
     
     // Crop Form
-    'crops.title': 'Cultures qui vous Intéressent',
-    'crops.input': 'Entrez les cultures qui vous intéressent',
-    'crops.placeholder': 'Ex. Riz, Blé, Maïs (séparés par des virgules)',
-    'crops.submit': 'Obtenir des Recommandations',
+    'crops.title': 'আপনি যে ফসলে আগ্রহী',
+    'crops.input': 'আপনি যে ফসল চাষ করতে আগ্রহী তা লিখুন',
+    'crops.placeholder': 'যেমন: ধান, গম, ভুট্টা (কমা দিয়ে আলাদা করুন)',
+    'crops.submit': 'সুপারিশ পান',
     
     // Recommendations
-    'recommendations.title': 'Cultures Recommandées',
-    'recommendations.based_on': 'Basé sur votre emplacement',
-    'recommendations.best_match': 'Meilleure Correspondance',
-    'recommendations.water': 'Eau',
-    'recommendations.temperature': 'Température',
-    'recommendations.growth': 'Croissance',
-    'recommendations.waiting': 'En Attente de vos Préférences',
-    'recommendations.fill_form': 'Partagez votre emplacement et vos intérêts de culture pour obtenir des recommandations personnalisées.',
-    'recommendations.no_results': 'Aucune recommandation de culture disponible pour votre emplacement. Veuillez essayer un emplacement différent.',
+    'recommendations.title': 'সুপারিশকৃত ফসল',
+    'recommendations.based_on': 'আপনার অবস্থানের উপর ভিত্তি করে',
+    'recommendations.best_match': 'সেরা মিল',
+    'recommendations.water': 'পানি',
+    'recommendations.temperature': 'তাপমাত্রা',
+    'recommendations.growth': 'বৃদ্ধি',
+    'recommendations.waiting': 'আপনার পছন্দের জন্য অপেক্ষা করছে',
+    'recommendations.fill_form': 'ব্যক্তিগতকৃত ফসলের সুপারিশ পেতে আপনার অবস্থান এবং ফসলের আগ্রহ শেয়ার করুন।',
+    'recommendations.no_results': 'আপনার অবস্থানের জন্য কোনো ফসলের সুপারিশ নেই। অনুগ্রহ করে একটি ভিন্ন অবস্থান চেষ্টা করুন।',
     
     // Features
-    'features.title': 'Pourquoi Choisir AgriVision',
-    'features.subtitle': 'Notre plateforme combine technologie de pointe et expertise agricole pour aider les agriculteurs à prendre des décisions plus intelligentes.',
-    'features.precision.title': 'Agriculture de Précision',
-    'features.precision.desc': 'Obtenez des recommandations adaptées à votre emplacement spécifique et à vos conditions environnementales.',
-    'features.optimization.title': 'Optimisation des Cultures',
-    'features.optimization.desc': 'Maximisez les rendements et minimisez l\'utilisation des ressources grâce à une sélection intelligente des cultures.',
-    'features.easy.title': 'Facile à Utiliser',
-    'features.easy.desc': 'Interface simple qui fournit des informations puissantes sans la complexité.',
+    'features.title': 'কেন AgriVision বেছে নেবেন',
+    'features.subtitle': 'আমাদের প্ল্যাটফর্ম কৃষকদের স্মার্ট সিদ্ধান্ত নিতে সাহায্য করার জন্য অত্যাধুনিক প্রযুক্তিকে কৃষি বিশেষজ্ঞতার সাথে সংযুক্ত করে।',
+    'features.precision.title': 'নির্ভুল কৃষি',
+    'features.precision.desc': 'আপনার নির্দিষ্ট অবস্থান এবং পরিবেশগত অবস্থার জন্য তৈরি সুপারিশ পান।',
+    'features.optimization.title': 'ফসল অপ্টিমাইজেশন',
+    'features.optimization.desc': 'বুদ্ধিমান ফসল নির্বাচনের মাধ্যমে ফলন বাড়ান এবং সম্পদ ব্যবহার কমান।',
+    'features.easy.title': 'ব্যবহার করা সহজ',
+    'features.easy.desc': 'সরল ইন্টারফেস যা জটিলতা ছাড়াই শক্তিশালী অন্তর্দৃষ্টি প্রদান করে।',
     
     // Footer
-    'footer.quick_links': 'Liens Rapides',
-    'footer.contact': 'Contact',
-    'footer.rights': 'Tous droits réservés.',
+    'footer.quick_links': 'দ্রুত লিঙ্ক',
+    'footer.contact': 'যোগাযোগ',
+    'footer.rights': 'সর্বস্বত্ব সংরক্ষিত।',
     
     // Language
-    'language': 'Langue',
+    'language': 'ভাষা',
     'language.en': 'English',
     'language.hi': 'हिंदी',
     'language.kn': 'ಕನ್ನಡ',
-    'language.es': 'Español',
-    'language.fr': 'Français',
+    'language.ta': 'தமிழ்',
+    'language.bn': 'বাংলা',
   },
 };
