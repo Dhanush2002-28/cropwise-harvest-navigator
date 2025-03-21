@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { Leaf, Droplets, Sun, ThermometerSun, Sparkles } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
@@ -61,7 +62,7 @@ export interface Crop {
   growthPeriod: string;
   idealTemperature: string;
   soilPh: string;
-  yield: string;
+  yieldEstimate: string; // Changed from yield to yieldEstimate
   seasonality: string;
 }
 
@@ -143,7 +144,7 @@ const RecommendationCard = ({ location, formData }: RecommendationProps) => {
     
     // Yield estimates
     const yieldRanges = ['2-3 tons/acre', '3-5 tons/acre', '1.5-2.5 tons/acre', '4-6 tons/acre'];
-    const yield = isPreferred ? yieldRanges[1] : yieldRanges[Math.floor(Math.random() * yieldRanges.length)];
+    const yieldEstimate = isPreferred ? yieldRanges[1] : yieldRanges[Math.floor(Math.random() * yieldRanges.length)];
     
     // Seasonality information
     let seasonality = '';
@@ -159,7 +160,7 @@ const RecommendationCard = ({ location, formData }: RecommendationProps) => {
       growthPeriod,
       idealTemperature,
       soilPh,
-      yield,
+      yieldEstimate, // Changed from yield to yieldEstimate
       seasonality,
     };
   };
