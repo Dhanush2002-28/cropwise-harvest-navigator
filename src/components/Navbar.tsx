@@ -70,9 +70,7 @@ const Navbar = () => {
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-8">
           <Link to="/" className="text-foreground hover:text-primary transition-colors">{t('nav.home')}</Link>
-          <Link to="/about" className="text-foreground hover:text-primary transition-colors">{t('nav.about')}</Link>
-          <Link to="/contact" className="text-foreground hover:text-primary transition-colors">{t('nav.contact')}</Link>
-          
+          <Link to="/about" className="text-foreground hover:text-primary transition-colors">{t('nav.about')}</Link>          
           <div className="flex items-center space-x-2">
             <LanguageSelector />
             
@@ -129,9 +127,6 @@ const Navbar = () => {
             </Link>
             <Link to="/about" onClick={handleMenuClose} className="py-2 text-foreground hover:text-primary transition-colors">
               {t('nav.about')}
-            </Link>
-            <Link to="/contact" onClick={handleMenuClose} className="py-2 text-foreground hover:text-primary transition-colors">
-              {t('nav.contact')}
             </Link>
           </nav>
         </div>

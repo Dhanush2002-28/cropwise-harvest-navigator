@@ -40,7 +40,7 @@ const Footer = () => {
                 <Twitter className="h-5 w-5" />
               </a>
               <a 
-                href="mailto:info@agrivision.com" 
+                href="mailto:dhanushchandru28@gmail.com" 
                 className="text-muted-foreground hover:text-primary transition-colors"
                 aria-label="Email"
               >
@@ -78,10 +78,11 @@ const Footer = () => {
           <div>
             <h3 className="font-semibold text-foreground mb-4">{t('footer.contact')}</h3>
             <ul className="space-y-3 text-muted-foreground">
-              <li>1234 Smart Farm Lane</li>
-              <li>Agri Valley, CA 94123</li>
-              <li>contact@agrivision.com</li>
-              <li>+1 (555) 123-4567</li>
+              <li>Dhanush C</li>
+              <li>Department of MCA</li>
+              <li>Acharya Institute of Technology, Bengaluru</li>
+              <li>dhanushchandru28@gmail.com</li>
+              <li>+91 99016 62554</li>
             </ul>
           </div>
         </div>

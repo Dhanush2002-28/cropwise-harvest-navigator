@@ -53,7 +53,7 @@ const About = () => {
                       <img 
                         src="/lovable-uploads/28a87d9e-bf3b-4021-bd55-6a7c87f2f8f3.png" 
                         alt="AgriVision Logo" 
-                        className="w-32 h-32 object-contain" 
+                        className="w-50 h-50 object-contain rounded-3xl" 
                       />
                     </div>
                   </div>
