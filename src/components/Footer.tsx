@@ -14,7 +14,7 @@ const Footer = () => {
           <div className="md:col-span-2">
             <Link to="/" className="flex items-center space-x-2 text-primary mb-4">
               <img 
-                src="/lovable-uploads/28a87d9e-bf3b-4021-bd55-6a7c87f2f8f3.png" 
+                src="/28a87d9e-bf3b-4021-bd55-6a7c87f2f8f3.png" 
                 alt="AgriVision Logo" 
                 className="h-10 w-auto" 
               />

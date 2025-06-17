@@ -49,9 +49,9 @@ const About = () => {
                   <div className="aspect-square rounded-2xl overflow-hidden bg-nature-100 dark:bg-nature-900 relative">
                     <div className="absolute inset-0 bg-gradient-to-br from-nature-100/80 to-nature-300/50 dark:from-nature-800/80 dark:to-nature-600/30"></div>
                     <div className="absolute inset-0 flex items-center justify-center">
-                      {/* Replace Leaf icon with AgriVision logo */}
+                      
                       <img 
-                        src="/lovable-uploads/28a87d9e-bf3b-4021-bd55-6a7c87f2f8f3.png" 
+                        src="/28a87d9e-bf3b-4021-bd55-6a7c87f2f8f3.png" 
                         alt="AgriVision Logo" 
                         className="w-50 h-50 object-contain rounded-3xl" 
                       />
@@ -80,7 +80,6 @@ const About = () => {
           </div>
         </section>
 
-        {/* Values Section */}
         <section className="py-16 md:py-24 bg-secondary/50">
           <div className="container mx-auto px-6">
             <div className="max-w-6xl mx-auto">

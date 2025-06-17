@@ -207,6 +207,74 @@ const cropSpecificData = {
     maxRainfall: 1200,
   },
 
+  // Regional important crops
+  Arecanut: {
+    waterNeeds: 85,
+    idealTemp: "15-38°C",
+    minRainfall: 750,
+    maxRainfall: 4500,
+  },
+  Ragi: {
+    waterNeeds: 45,
+    idealTemp: "25-30°C",
+    minRainfall: 400,
+    maxRainfall: 900,
+  },
+  Jowar: {
+    waterNeeds: 50,
+    idealTemp: "25-32°C",
+    minRainfall: 300,
+    maxRainfall: 600,
+  },
+  Tur: {
+    waterNeeds: 45,
+    idealTemp: "20-35°C",
+    minRainfall: 600,
+    maxRainfall: 1000,
+  },
+  Millets: {
+    waterNeeds: 35,
+    idealTemp: "25-35°C",
+    minRainfall: 200,
+    maxRainfall: 600,
+  },
+  SugarBeet: {
+    waterNeeds: 60,
+    idealTemp: "15-25°C",
+    minRainfall: 400,
+    maxRainfall: 600,
+  },
+  Cashew: {
+    waterNeeds: 50,
+    idealTemp: "25-30°C",
+    minRainfall: 1000,
+    maxRainfall: 2000,
+  },
+  "Spices (Pepper)": {
+    waterNeeds: 70,
+    idealTemp: "23-32°C",
+    minRainfall: 2000,
+    maxRainfall: 3000,
+  },
+  "Cotton (Bt)": {
+    waterNeeds: 60,
+    idealTemp: "25-35°C",
+    minRainfall: 600,
+    maxRainfall: 1200,
+  },
+  "Groundnut (Bold)": {
+    waterNeeds: 50,
+    idealTemp: "25-30°C",
+    minRainfall: 500,
+    maxRainfall: 700,
+  },
+  Cumin: {
+    waterNeeds: 30,
+    idealTemp: "20-30°C",
+    minRainfall: 250,
+    maxRainfall: 400,
+  },
+
   // Default values
   default: {
     waterNeeds: 60,
@@ -253,6 +321,7 @@ export interface Crop {
     previous: number;
     suitability: number;
   };
+  npkSuitability?: number; // <-- Add this line
 }
 
 interface RecommendationProps {
@@ -276,7 +345,30 @@ interface RecommendationProps {
   };
 }
 
-const RecommendationCard = ({ location, formData }: RecommendationProps) => {
+// Calculate NPK suitability score
+function getNpkSuitability(
+  userNpk: { n: number; p: number; k: number },
+  cropNpk: { n: [number, number]; p: [number, number]; k: [number, number] }
+) {
+  let score = 0;
+  ["n", "p", "k"].forEach((key) => {
+    const [min, max] = cropNpk[key as "n" | "p" | "k"];
+    const value = userNpk[key as "n" | "p" | "k"];
+    if (value >= min && value <= max) {
+      score += 33.33;
+    } else {
+      const dist = Math.min(Math.abs(value - min), Math.abs(value - max));
+      score += Math.max(0, 33.33 - dist);
+    }
+  });
+  return Math.round(score);
+}
+
+const RecommendationCard = ({
+  location,
+  formData,
+  npk,
+}: RecommendationProps) => {
   const { t } = useLanguage();
   const [recommendations, setRecommendations] = useState<Crop[]>([]);
   const [loading, setLoading] = useState(false);
@@ -305,7 +397,7 @@ const RecommendationCard = ({ location, formData }: RecommendationProps) => {
     cropName: string,
     preferredCrops: string[],
     currentSeason: string
-  ): Crop => {
+  ): Crop & { npkSuitability?: number } => {
     // Get crop-specific data or default values
     const cropData =
       cropSpecificData[cropName as keyof typeof cropSpecificData] ||
@@ -404,6 +496,15 @@ const RecommendationCard = ({ location, formData }: RecommendationProps) => {
     if (seasonalCrops.zaid.includes(cropName)) seasonality += "Zaid, ";
     seasonality = seasonality ? seasonality.slice(0, -2) : "Year-round";
 
+    // NPK suitability - improved type safety
+    const cropNpk: {
+      n: [number, number];
+      p: [number, number];
+      k: [number, number];
+    } = (cropData as typeof cropSpecificData[keyof typeof cropSpecificData]).npk || { n: [50, 100], p: [20, 50], k: [20, 50] };
+    const npkSuitability = getNpkSuitability(npk, cropNpk);
+
+    // Return the complete crop object
     return {
       name: cropName,
       description: `${cropName} is well-suited for ${
@@ -425,6 +526,7 @@ const RecommendationCard = ({ location, formData }: RecommendationProps) => {
         previous: rainfallData.previous,
         suitability: rainfallSuitability,
       },
+      npkSuitability, // <-- Add this to the return object
     };
   };
 
@@ -492,6 +594,11 @@ const RecommendationCard = ({ location, formData }: RecommendationProps) => {
             if (aCurrentSeason && !bCurrentSeason) return -1;
             if (!aCurrentSeason && bCurrentSeason) return 1;
 
+            // Then by NPK suitability
+            if ((b.npkSuitability ?? 0) !== (a.npkSuitability ?? 0)) {
+              return (b.npkSuitability ?? 0) - (a.npkSuitability ?? 0);
+            }
+
             // Then by rainfall suitability
             if (
               Math.abs(a.rainfall.suitability - b.rainfall.suitability) > 15
@@ -532,7 +639,7 @@ const RecommendationCard = ({ location, formData }: RecommendationProps) => {
     if (location?.latitude && location?.longitude) {
       generateRecommendations();
     }
-  }, [location, formData]);
+  }, [location, formData, npk]); // <-- add npk here
 
   if (!location?.latitude || !location?.longitude) {
     return (
@@ -637,6 +744,10 @@ const RecommendationCard = ({ location, formData }: RecommendationProps) => {
                     {crop.rainfall.previous} mm) | Suitability:{" "}
                     {crop.rainfall.suitability}%
                   </span>
+                </div>
+                <div className="flex items-center text-sm">
+                  <Leaf className="w-4 h-4 mr-1.5 text-primary" />
+                  <span>NPK Suitability: {crop.npkSuitability ?? 0}%</span>
                 </div>
               </div>
             </div>
