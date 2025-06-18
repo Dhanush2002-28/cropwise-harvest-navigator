@@ -1,4 +1,3 @@
-
 // Soil type and climate determination specifically for India
 
 interface SoilData {
@@ -23,15 +22,15 @@ interface LocationData {
 export const getSoilAndClimateFromLocation = (latitude: number, longitude: number): { soilType: string; climate: string } => {
   // Check if coordinates are likely within India (rough bounding box)
   const isInIndia = (latitude >= 8.0 && latitude <= 37.0 && longitude >= 68.0 && longitude <= 97.0);
-  
+
   // Default for locations outside India or fallback
   if (!isInIndia) {
     return { soilType: 'loam', climate: 'temperate' };
   }
-  
+
   // India-specific soil determination based on regions
   let soilType = 'alluvial'; // Most common in India
-  
+
   // Northern Plains (Indo-Gangetic plains)
   if (latitude >= 24.0 && latitude <= 32.0 && longitude >= 75.0 && longitude <= 88.0) {
     soilType = 'alluvial';
@@ -45,8 +44,8 @@ export const getSoilAndClimateFromLocation = (latitude: number, longitude: numbe
     soilType = 'black'; // Black cotton soil/regur
   }
   // Eastern India and coastal regions
-  else if ((latitude >= 20.0 && latitude <= 25.0 && longitude >= 85.0 && longitude <= 93.0) || 
-           (Math.abs(longitude - 80.0) <= 2.0 && latitude <= 15.0)) {
+  else if ((latitude >= 20.0 && latitude <= 25.0 && longitude >= 85.0 && longitude <= 93.0) ||
+    (Math.abs(longitude - 80.0) <= 2.0 && latitude <= 15.0)) {
     soilType = 'red';
   }
   // Himalayan Region
@@ -57,10 +56,10 @@ export const getSoilAndClimateFromLocation = (latitude: number, longitude: numbe
   else if (latitude >= 8.0 && latitude <= 15.0 && longitude >= 74.0 && longitude <= 78.0) {
     soilType = 'laterite';
   }
-  
+
   // India-specific climate determination
   let climate = 'subtropical'; // Default for most of India
-  
+
   // Himalayan Region - Alpine/Mountain
   if (latitude >= 28.0 && latitude <= 37.0 && longitude >= 73.0 && longitude <= 97.0) {
     climate = 'mountain';
@@ -71,7 +70,7 @@ export const getSoilAndClimateFromLocation = (latitude: number, longitude: numbe
   }
   // Coastal regions
   else if ((Math.abs(longitude - 73.0) <= 1.5 && latitude <= 22.0) || // Western Coast
-           (Math.abs(longitude - 80.0) <= 2.0 && latitude <= 15.0)) { // Eastern Coast
+    (Math.abs(longitude - 80.0) <= 2.0 && latitude <= 15.0)) { // Eastern Coast
     climate = 'tropical';
   }
   // Northeast India
@@ -86,7 +85,7 @@ export const getSoilAndClimateFromLocation = (latitude: number, longitude: numbe
   else if (latitude <= 17.0) {
     climate = 'tropical';
   }
-  
+
   return { soilType, climate };
 };
 
@@ -94,10 +93,10 @@ export const getSoilAndClimateFromLocation = (latitude: number, longitude: numbe
 export const getCurrentSeason = (latitude: number): string => {
   const now = new Date();
   const month = now.getMonth();
-  
+
   // Indian agricultural seasons are different from Western seasons
   // Kharif (Monsoon), Rabi (Winter), Zaid (Summer)
-  
+
   // Kharif season: June to October (Monsoon crops)
   if (month >= 5 && month <= 9) {
     return 'kharif';
@@ -111,3 +110,12 @@ export const getCurrentSeason = (latitude: number): string => {
     return 'zaid';
   }
 };
+
+export async function reverseGeocode(lat: number, lon: number) {
+  const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`;
+  const response = await fetch(url);
+  if (!response.ok) throw new Error("Failed to reverse geocode");
+  const data = await response.json();
+  // address fields: state, county, city, town, village, suburb, etc.
+  return data.address;
+}

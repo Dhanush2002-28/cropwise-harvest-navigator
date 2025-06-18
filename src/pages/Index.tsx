@@ -12,21 +12,17 @@ import { useLanguage } from "../context/LanguageContext";
 interface Location {
   latitude: number;
   longitude: number;
-  city?: string;
-  region?: string;
-  country?: string;
-  soilType?: string;
-  climate?: string;
-  season?: string;
+  state: string;
+  district: string;
+  block: string;
 }
 
 interface FormData {
   interestedCrops: string;
 }
 
-interface RecommendationProps {
+interface RecommendationCardProps {
   location: Location | null;
-  formData: FormData;
   npk: { n: number; p: number; k: number };
 }
 
@@ -74,11 +70,7 @@ const Index = () => {
                   <CropForm onSubmit={handleFormSubmit} />
                 </div>
                 <div>
-                  <RecommendationCard
-                    location={location}
-                    formData={formData}
-                    npk={npk}
-                  />
+                  <RecommendationCard location={location} npk={npk} />
                 </div>
               </div>
             </div>
