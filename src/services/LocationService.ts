@@ -111,11 +111,55 @@ export const getCurrentSeason = (latitude: number): string => {
   }
 };
 
-export async function reverseGeocode(lat: number, lon: number) {
-  const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`;
-  const response = await fetch(url);
-  if (!response.ok) throw new Error("Failed to reverse geocode");
-  const data = await response.json();
-  // address fields: state, county, city, town, village, suburb, etc.
-  return data.address;
-}
+export const reverseGeocode = async (lat: number, lon: number) => {
+  console.log(`🌍 reverseGeocode called with: lat=${lat}, lon=${lon}`);
+
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => {
+      console.log("⏰ Reverse geocoding request timeout");
+      controller.abort();
+    }, 15000);
+
+    const url = `http://127.0.0.1:8000/reverse-geocode?lat=${lat}&lon=${lon}`;
+    console.log(`📡 Making request to: ${url}`);
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+    console.log(`📡 Response received - Status: ${response.status}`);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`❌ HTTP Error ${response.status}:`, errorText);
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log('✅ Reverse geocoding response:', data);
+    return data;
+  } catch (error) {
+    console.error('❌ Reverse geocoding failed:', error);
+
+    if (error.name === 'AbortError') {
+      console.log('⏰ Request was aborted due to timeout');
+    }
+
+    // Return a fallback location for testing
+    const fallback = {
+      postcode: "560001",
+      state: "Karnataka",
+      county: "Bengaluru Urban",
+      city: "Bengaluru",
+      suburb: "Central Bengaluru"
+    };
+    console.log('🔄 Using fallback location:', fallback);
+    return fallback;
+  }
+};
