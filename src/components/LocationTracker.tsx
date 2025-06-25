@@ -7,7 +7,7 @@ interface Location {
   state: string;
   district: string;
   block: string;
-  // ...other fields if needed
+  pincode: string; // Add pincode to the location interface
 }
 
 interface LocationTrackerProps {
@@ -21,38 +21,31 @@ const LocationTracker: React.FC<LocationTrackerProps> = ({
     navigator.geolocation.getCurrentPosition(async (pos) => {
       const { latitude, longitude } = pos.coords;
       try {
-        const address = await reverseGeocode(latitude, longitude);
+        const address = (await reverseGeocode(latitude, longitude)) || {};
 
-        // Map address fields to backend keys
-        const state = address.state || address.county || "Unknown";
-        const district =
-          address.county || address.district || address.city || "Unknown";
-        const block =
-          address.suburb ||
-          address.town ||
-          address.village ||
-          address.city ||
-          address.hamlet ||
-          "Unknown";
+        // Extract pincode from the reverse geocoding result
+        const pincode = String(address.postcode || "Unknown");
 
         const locationData: Location = {
           latitude,
           longitude,
-          state,
-          district,
-          block,
+          state: String(address.state || address.county || "Unknown"),
+          district: String(
+            address.county || address.district || address.city || "Unknown"
+          ),
+          block: String(
+            address.suburb ||
+              address.town ||
+              address.village ||
+              address.city ||
+              "Unknown"
+          ),
+          pincode, // Include pincode in the location data
         };
 
         onLocationChange(locationData);
       } catch (e) {
-        // Handle error (show message, fallback, etc.)
-        onLocationChange({
-          latitude,
-          longitude,
-          state: "Unknown",
-          district: "Unknown",
-          block: "Unknown",
-        });
+        console.error("Error detecting location:", e);
       }
     });
   }, [onLocationChange]);
