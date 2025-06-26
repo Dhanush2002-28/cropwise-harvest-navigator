@@ -34,18 +34,27 @@ const LocationTracker: React.FC<LocationTrackerProps> = ({
   const fetchCropRecommendation = async (pincode: string) => {
     if (pincode && pincode !== "Unknown") {
       try {
+        console.log("Fetching crop recommendation for pincode:", pincode);
+
         const response = await fetch(`${BACKEND_URL}/recommend-crop`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ pincode }),
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify({ pincode: pincode }), // Make sure pincode is sent as an object
         });
 
+        console.log("Response status:", response.status);
+
         if (!response.ok) {
+          const errorText = await response.text();
+          console.error("Error response:", errorText);
           throw new Error(`HTTP error! status: ${response.status}`);
         }
 
         const data = await response.json();
-        console.log("Crop Recommendation:", data);
+        console.log("Crop Recommendation data:", data);
 
         if (onCropRecommendation) {
           onCropRecommendation(data);
@@ -251,7 +260,7 @@ const LocationTracker: React.FC<LocationTrackerProps> = ({
                 </button>
                 <button
                   onClick={() => setShowManualInput(true)}
-                  className="px-3 py-1.5 bg-orange-500 text-white rounded-md text-sm hover:bg-orange-600 transition-colors"
+                  className="px-3 py-1.5 bg-primary/10 text-primary border border-primary/20 rounded-md text-sm hover:bg-primary/20 transition-colors"
                 >
                   Enter Pincode Manually
                 </button>
@@ -293,8 +302,8 @@ const LocationTracker: React.FC<LocationTrackerProps> = ({
       {/* Manual Input Form - Better Positioned */}
       {showManualInput && (
         <div className="space-y-4">
-          <div className="p-4 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-            <h4 className="font-medium text-blue-800 dark:text-blue-200 mb-3 flex items-center gap-2">
+          <div className="p-4 bg-primary/5 border border-primary/20 rounded-lg">
+            <h4 className="font-medium text-primary mb-3 flex items-center gap-2">
               <Edit className="w-4 h-4" />
               Enter Your Pincode
             </h4>
@@ -352,3 +361,29 @@ const LocationTracker: React.FC<LocationTrackerProps> = ({
 };
 
 export default LocationTracker;
+
+// Update the interface for crop recommendation response:
+
+interface PincodeCropRecommendation {
+  pincode: string;
+  location: {
+    state: string;
+    district: string;
+    block: string;
+  };
+  soil_data?: {
+    nitrogen: number;
+    phosphorous: number;
+    potassium: number;
+    ph: number;
+  };
+  weather_data?: {
+    temperature: number;
+    rainfall: number;
+    year: number;
+  };
+  recommended_crops: Array<{
+    crop: string;
+    probability: number;
+  }>;
+}
