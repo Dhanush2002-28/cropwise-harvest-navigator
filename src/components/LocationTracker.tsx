@@ -28,8 +28,7 @@ const LocationTracker: React.FC<LocationTrackerProps> = ({
     null
   );
 
-  const BACKEND_URL =
-    import.meta.env.VITE_BACKEND_URL
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL?.replace(/\/$/, ""); // Remove trailing slash if present
 
   const fetchCropRecommendation = async (pincode: string) => {
     if (pincode && pincode !== "Unknown") {
