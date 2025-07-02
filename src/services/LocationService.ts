@@ -153,7 +153,7 @@ export const reverseGeocode = async (lat: number, lon: number) => {
 
     // Return a fallback location for testing
     const fallback = {
-      postcode: "560001",
+      postcode: "560095",
       state: "Karnataka",
       county: "Bengaluru Urban",
       city: "Bengaluru",
