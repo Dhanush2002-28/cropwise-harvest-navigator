@@ -220,26 +220,6 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({
             </div>
           </div>
         )}
-
-        {/* Debug info - remove in production */}
-        {process.env.NODE_ENV === "development" && (
-          <div className="mt-2 p-2 bg-gray-100 dark:bg-gray-800 rounded text-xs">
-            <p>
-              <strong>Debug:</strong>
-            </p>
-            <p>
-              Manual NPK: N:{npk.n}, P:{npk.p}, K:{npk.k}
-            </p>
-            {cropRecommendation?.soil_data && (
-              <p>
-                Backend NPK: N:
-                {Math.round(cropRecommendation.soil_data.nitrogen)}, P:
-                {Math.round(cropRecommendation.soil_data.phosphorous)}, K:
-                {Math.round(cropRecommendation.soil_data.potassium)}
-              </p>
-            )}
-          </div>
-        )}
       </div>
 
       {/* Crop Recommendations with Growing Tips */}
@@ -290,7 +270,7 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({
             <div className="text-xs text-center text-muted-foreground mt-3">
               {t('recommendations.based_on_pincode')}: {cropRecommendation.pincode}
             </div>
-          </div>
+          </div>  
         ) : (
           <div className="text-center py-6">
             {location.pincode === "Unknown" ? (
