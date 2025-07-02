@@ -40,7 +40,6 @@ interface RecommendationCardProps {
   cropRecommendation?: PincodeCropRecommendation | null;
 }
 
-// Add crop growing tips data
 const CROP_TIPS = {
   Rice: {
     icon: "🌾",
