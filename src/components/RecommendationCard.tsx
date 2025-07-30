@@ -1,5 +1,5 @@
 import React from "react";
-import { useLanguage } from "../context/LanguageContext"; // Add this import
+import { useLanguage } from "../context/LanguageContext";
 
 interface Location {
   latitude: number;
@@ -10,7 +10,7 @@ interface Location {
   pincode: string;
 }
 
-interface PincodeCropRecommendation {
+interface CropRecommendation {
   pincode: string;
   location: {
     state: string;
@@ -37,64 +37,56 @@ interface PincodeCropRecommendation {
 interface RecommendationCardProps {
   location: Location | null;
   npk: { n: number; p: number; k: number };
-  cropRecommendation?: PincodeCropRecommendation | null;
+  cropRecommendation?: CropRecommendation | null;
 }
 
-const CROP_TIPS = {
-  Rice: {
+// Crop tips data
+const CROP_TIPS: {
+  [key: string]: { icon: string; season: string; tips: string[] };
+} = {
+  rice: {
     icon: "🌾",
     season: "Kharif (June-Nov)",
     tips: [
       "Requires flooded fields for first 6-8 weeks",
       "Plant during monsoon season",
       "Needs 20-25°C temperature for optimal growth",
-      "Harvest when grains turn golden yellow",
+      "Harvest when grains turn golden",
     ],
   },
-  Wheat: {
+  wheat: {
     icon: "🌾",
     season: "Rabi (Nov-Apr)",
     tips: [
       "Sow after monsoon season ends",
       "Requires cool weather for growth",
       "Irrigate 4-6 times during growing season",
-      "Harvest when crop turns golden brown",
+      "Harvest when crop turns golden",
     ],
   },
-  Maize: {
-    icon: "🌽",
-    season: "Kharif & Rabi",
-    tips: [
-      "Plant when soil temperature reaches 15°C",
-      "Requires well-drained soil",
-      "Water regularly but avoid waterlogging",
-      "Harvest when kernels are plump and firm",
-    ],
-  },
-  Cotton: {
+  cotton: {
     icon: "🌱",
     season: "Kharif (Apr-Oct)",
     tips: [
-      "Needs warm climate with 180+ frost-free days",
-      "Plant after soil reaches 18°C",
-      "Requires moderate rainfall during growth",
-      "Harvest when bolls are fully opened",
+      "Requires warm climate (21-30°C)",
+      "Deep, well-drained soil preferred",
+      "Needs adequate moisture during flowering",
+      "Regular pest monitoring required",
     ],
   },
-  Sugarcane: {
+  sugarcane: {
     icon: "🎋",
     season: "Year-round",
     tips: [
-      "Plant during February-March or October-November",
-      "Needs abundant water supply",
-      "Requires 200-250cm annual rainfall",
-      "Harvest after 10-18 months depending on variety",
+      "Requires 12-15 months growing period",
+      "Heavy water requirement",
+      "Rich, well-drained soil needed",
+      "Regular earthing up required",
     ],
   },
-  // Add default for unknown crops
   default: {
     icon: "🌿",
-    season: "Season varies",
+    season: "Variable",
     tips: [
       "Follow local agricultural guidelines",
       "Consult with local agricultural extension officer",
@@ -104,29 +96,36 @@ const CROP_TIPS = {
   },
 };
 
+// Helper function for crop tips
+function getCropTips(cropName: string) {
+  return CROP_TIPS[cropName.toLowerCase()] || CROP_TIPS["default"];
+}
+
 const RecommendationCard: React.FC<RecommendationCardProps> = ({
   location,
   npk,
   cropRecommendation,
 }) => {
-  const { t } = useLanguage(); // Add this line
+  const { t } = useLanguage();
 
   if (!location) {
     return (
-      <div className="glass p-6 rounded-xl">
-        <div className="text-center">
+      <div
+        className="relative w-[85vw] transition-all shadow-lg rounded-2xl overflow-hidden"
+        style={{ maxWidth: "none", minWidth: "85vw" }}
+      >
+        {/* Green gradient overlay */}
+        <div className="pointer-events-none absolute inset-0 z-0 bg-gradient-to-br from-primary/20 via-primary/10 to-transparent" />
+        {/* Card background using website colors */}
+        <div className="relative z-10 bg-card text-card-foreground border border-border rounded-2xl w-full h-full p-8 flex flex-col items-center justify-center min-h-[200px]">
           <div className="animate-pulse">
-            <div className="w-8 h-8 bg-primary/20 rounded-full mx-auto mb-2"></div>
-            <p className="text-muted-foreground">{t('location.detecting')}</p>
+            <div className="w-8 h-8 bg-muted rounded-full mx-auto mb-2"></div>
+            <p className="text-foreground">Detecting location...</p>
           </div>
         </div>
       </div>
     );
   }
-
-  const getCropTips = (cropName: string) => {
-    return CROP_TIPS[cropName] || CROP_TIPS["default"];
-  };
 
   // Use soil data from crop recommendation if available, otherwise use NPK input
   const displayNPK = cropRecommendation?.soil_data
@@ -138,161 +137,227 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({
     : npk;
 
   return (
-    <div className="glass p-6 rounded-xl">
-      <h3 className="text-xl font-semibold mb-4">{t('recommendations.current_info')}</h3>
-
-      {/* Location Information */}
-      <div className="mb-6">
-        <h4 className="font-medium mb-3 text-primary">📍 {t('location.title')}</h4>
-        <div className="space-y-1">
-          <p className="text-sm">
-            <span className="font-medium">{t('location.pincode')}:</span>
-            <span className="ml-2 text-muted-foreground">
-              {location?.pincode !== "Unknown"
-                ? location?.pincode
-                : t('location.detecting')}
-            </span>
-          </p>
-          <p className="text-sm">
-            <span className="font-medium">{t('location.area')}:</span>
-            <span className="ml-2 text-muted-foreground">
-              {location?.state}, {location?.district}
-            </span>
-          </p>
-        </div>
-      </div>
-
-      {/* NPK Values - Show source and use backend data */}
-      <div className="mb-6">
-        <h4 className="font-medium mb-3 text-primary">
-          🧪 {t('soil.npk_values')}
-          {cropRecommendation?.soil_data && (
-            <span className="text-xs font-normal text-green-600 ml-2">
-              ✓ {t('soil.from_database')}
-            </span>
-          )}
-          {!cropRecommendation?.soil_data && npk.n > 0 && (
-            <span className="text-xs font-normal text-orange-600 ml-2">
-              ({t('soil.manual_input')})
-            </span>
-          )}
-        </h4>
-        <div className="grid grid-cols-3 gap-3">
-          <div className="text-center p-3 bg-primary/5 rounded-lg">
-            <p className="text-xs text-muted-foreground mb-1">{t('soil.nitrogen')}</p>
-            <p className="font-bold text-lg text-primary">{displayNPK.n}</p>
-          </div>
-          <div className="text-center p-3 bg-primary/5 rounded-lg">
-            <p className="text-xs text-muted-foreground mb-1">{t('soil.phosphorus')}</p>
-            <p className="font-bold text-lg text-primary">{displayNPK.p}</p>
-          </div>
-          <div className="text-center p-3 bg-primary/5 rounded-lg">
-            <p className="text-xs text-muted-foreground mb-1">{t('soil.potassium')}</p>
-            <p className="font-bold text-lg text-primary">{displayNPK.k}</p>
-          </div>
+    <div
+      className="relative w-[85vw] transition-all shadow-lg rounded-2xl overflow-hidden"
+      style={{ maxWidth: "none", minWidth: "85vw" }}
+    >
+      {/* Green gradient overlay */}
+      <div className="pointer-events-none absolute inset-0 z-0 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent" />
+      {/* Card background using website colors */}
+      <div className="relative z-10 bg-card text-card-foreground border border-border rounded-2xl w-full h-full">
+        {/* Header */}
+        <div className="px-8 py-4 border-b border-border bg-secondary/50 rounded-t-2xl">
+          <h3 className="text-2xl font-semibold flex items-center gap-2 text-foreground">
+            <span className="text-lg">🌱</span>
+            Crop Recommendations & Analysis
+          </h3>
         </div>
 
-        {/* Show pH and additional soil info if available */}
-        {cropRecommendation?.soil_data && (
-          <div className="mt-3 p-3 bg-secondary/30 rounded-lg">
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              <p>
-                <strong>{t('soil.ph')}:</strong>{" "}
-                {cropRecommendation.soil_data.ph.toFixed(1)}
-              </p>
-              {cropRecommendation?.weather_data && (
-                <>
-                  <p>
-                    <strong>{t('weather.temperature')}:</strong>{" "}
-                    {cropRecommendation.weather_data.temperature.toFixed(1)}°C
-                  </p>
-                  <p>
-                    <strong>{t('weather.rainfall')}:</strong>{" "}
-                    {cropRecommendation.weather_data.rainfall.toFixed(0)}mm
-                  </p>
-                  <p>
-                    <strong>{t('weather.year')}:</strong>{" "}
-                    {cropRecommendation.weather_data.year}
-                  </p>
-                </>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Crop Recommendations with Growing Tips */}
-      <div>
-        <h4 className="font-medium mb-3 text-primary">
-          🌾 {t('recommendations.ai_tips')}
-        </h4>
-        {cropRecommendation && cropRecommendation.recommended_crops ? (
-          <div className="space-y-4">
-            {cropRecommendation.recommended_crops
-              .slice(0, 3)
-              .map((crop, index) => {
-                const tips = getCropTips(crop.crop);
-                return (
-                  <div
-                    key={index}
-                    className="border border-primary/20 rounded-lg p-4 bg-gradient-to-r from-primary/5 to-primary/10"
-                  >
-                    <div className="flex items-center gap-2 mb-3">
-                      <span className="text-2xl">{tips.icon}</span>
-                      <div>
-                        <h5 className="font-semibold text-lg">{crop.crop}</h5>
-                        <p className="text-xs text-primary font-medium">
-                          {t('recommendations.rank')} #{index + 1} • {tips.season}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <h6 className="font-medium text-sm text-primary">
-                        💡 {t('recommendations.growing_tips')}:
-                      </h6>
-                      <ul className="space-y-1">
-                        {tips.tips.map((tip, tipIndex) => (
-                          <li
-                            key={tipIndex}
-                            className="text-xs text-muted-foreground flex items-start gap-2"
-                          >
-                            <span className="text-primary mt-1">•</span>
-                            <span>{tip}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                );
-              })}
-            <div className="text-xs text-center text-muted-foreground mt-3">
-              {t('recommendations.based_on_pincode')}: {cropRecommendation.pincode}
-            </div>
-          </div>  
-        ) : (
-          <div className="text-center py-6">
-            {location.pincode === "Unknown" ? (
-              <div>
-                <div className="animate-pulse mb-2">
-                  <div className="w-6 h-6 bg-primary/20 rounded-full mx-auto"></div>
+        <div className="px-8 py-6">
+          {/* Horizontal Information Layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
+            {/* Location Information */}
+            <div className="bg-secondary rounded-md p-4 border border-border">
+              <h4 className="text-base font-semibold mb-2 flex items-center gap-2 text-foreground">
+                <span className="text-base">📍</span> Location
+              </h4>
+              <div className="space-y-1 text-sm">
+                <div className="text-foreground">
+                  <span className="font-medium">PIN:</span>{" "}
+                  {location?.pincode !== "Unknown"
+                    ? location?.pincode
+                    : "Detecting..."}
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  {t('recommendations.waiting_location')}
-                </p>
+                <div className="text-foreground">
+                  <span className="font-medium">Area:</span> {location?.state},{" "}
+                  {location?.district}
+                </div>
+              </div>
+            </div>
+
+            {/* NPK Values */}
+            <div className="bg-secondary rounded-md p-4 border border-border">
+              <h4 className="text-base font-semibold mb-2 flex items-center gap-2 text-foreground">
+                <span className="text-base">🧪</span> NPK Values
+                {cropRecommendation?.soil_data && (
+                  <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded font-medium">
+                    Database
+                  </span>
+                )}
+                {!cropRecommendation?.soil_data && npk.n > 0 && (
+                  <span className="text-xs bg-muted text-foreground px-2 py-0.5 rounded font-medium">
+                    Manual
+                  </span>
+                )}
+              </h4>
+              <div className="grid grid-cols-3 gap-2">
+                <div className="text-center">
+                  <div className="text-xs text-primary font-semibold">N</div>
+                  <div className="text-lg font-semibold text-foreground">
+                    {displayNPK.n}
+                  </div>
+                </div>
+                <div className="text-center">
+                  <div className="text-xs text-primary font-semibold">P</div>
+                  <div className="text-lg font-semibold text-foreground">
+                    {displayNPK.p}
+                  </div>
+                </div>
+                <div className="text-center">
+                  <div className="text-xs text-primary font-semibold">K</div>
+                  <div className="text-lg font-semibold text-foreground">
+                    {displayNPK.k}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Weather Data */}
+            {cropRecommendation?.soil_data && (
+              <div className="bg-secondary rounded-md p-4 border border-border">
+                <h4 className="text-base font-semibold mb-2 flex items-center gap-2 text-foreground">
+                  <span className="text-base">🌤️</span> Environment
+                </h4>
+                <div className="space-y-1 text-sm">
+                  <div className="text-foreground">
+                    <span className="font-medium">pH:</span>{" "}
+                    {cropRecommendation.soil_data.ph.toFixed(1)}
+                  </div>
+                  {cropRecommendation?.weather_data && (
+                    <>
+                      <div className="text-foreground">
+                        <span className="font-medium">Temp:</span>{" "}
+                        {cropRecommendation.weather_data.temperature.toFixed(1)}
+                        °C
+                      </div>
+                      <div className="text-foreground">
+                        <span className="font-medium">Rain:</span>{" "}
+                        {cropRecommendation.weather_data.rainfall.toFixed(0)}mm
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Summary Stats */}
+            <div className="bg-secondary rounded-md p-4 border border-border">
+              <h4 className="text-base font-semibold mb-2 flex items-center gap-2 text-foreground">
+                <span className="text-base">📊</span> Analysis
+              </h4>
+              <div className="space-y-1 text-sm">
+                <div className="text-foreground">
+                  <span className="font-medium">Crops:</span>{" "}
+                  {cropRecommendation?.recommended_crops?.length || 0} found
+                </div>
+                <div className="text-foreground">
+                  <span className="font-medium">Based on:</span>{" "}
+                  {cropRecommendation?.pincode || "Manual"}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Crop Recommendations - Horizontal Layout */}
+          <div>
+            <h4 className="text-xl font-semibold mb-4 flex items-center gap-2 text-foreground">
+              <span className="text-lg">🌾</span> Recommended Crops
+            </h4>
+            {cropRecommendation && cropRecommendation.recommended_crops ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {cropRecommendation.recommended_crops
+                  .slice(0, 4)
+                  .map((crop, index) => {
+                    const tips = getCropTips(crop.crop);
+                    return (
+                      <div
+                        key={index}
+                        className="bg-secondary rounded-lg p-6 border border-border hover:bg-accent transition-all"
+                      >
+                        {/* Crop Header */}
+                        <div className="flex items-center justify-between mb-4">
+                          <span className="text-3xl">{tips.icon}</span>
+                          <div className="text-right">
+                            <span className="text-xs bg-muted text-muted-foreground px-2 py-1 rounded font-medium">
+                              #{index + 1}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Crop Name */}
+                        <h5 className="font-semibold text-lg mb-1 text-foreground">
+                          {crop.crop}
+                        </h5>
+
+                        {/* Suitability */}
+                        <p className="text-sm text-foreground mb-3">
+                          {Math.round(crop.probability * 100)}% Suitable
+                        </p>
+
+                        {/* Progress Bar */}
+                        <div className="mb-4">
+                          <div className="bg-muted rounded-full h-2">
+                            <div
+                              className="bg-primary h-2 rounded-full transition-all duration-500"
+                              style={{ width: `${crop.probability * 100}%` }}
+                            ></div>
+                          </div>
+                        </div>
+
+                        {/* Season */}
+                        <div className="text-xs text-foreground mb-3">
+                          <span className="font-medium">Season:</span>{" "}
+                          {tips.season}
+                        </div>
+
+                        {/* Top Tips */}
+                        <div>
+                          <h6 className="text-xs font-semibold text-foreground mb-2">
+                            Key Tips:
+                          </h6>
+                          <ul className="space-y-1">
+                            {tips.tips.slice(0, 2).map((tip, tipIndex) => (
+                              <li
+                                key={tipIndex}
+                                className="text-xs text-foreground flex items-start gap-1"
+                              >
+                                <span className="text-foreground mt-0.5">
+                                  •
+                                </span>
+                                <span className="leading-relaxed">{tip}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+                    );
+                  })}
               </div>
             ) : (
-              <div>
-                <div className="animate-pulse mb-2">
-                  <div className="w-6 h-6 bg-primary/20 rounded-full mx-auto"></div>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  {t('recommendations.fetching_for')} {location.pincode}...
-                </p>
+              <div className="text-center py-12">
+                {location?.pincode === "Unknown" ? (
+                  <div className="bg-secondary rounded-lg p-8 border border-border">
+                    <div className="animate-pulse mb-4">
+                      <div className="w-8 h-8 bg-muted rounded-full mx-auto"></div>
+                    </div>
+                    <p className="text-muted-foreground">
+                      Waiting for location...
+                    </p>
+                  </div>
+                ) : (
+                  <div className="bg-secondary rounded-lg p-8 border border-border">
+                    <div className="animate-pulse mb-4">
+                      <div className="w-8 h-8 bg-muted rounded-full mx-auto"></div>
+                    </div>
+                    <p className="text-muted-foreground">
+                      Fetching recommendations for {location?.pincode}...
+                    </p>
+                  </div>
+                )}
               </div>
             )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

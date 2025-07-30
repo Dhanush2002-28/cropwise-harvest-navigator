@@ -1,4 +1,3 @@
-
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { Lightbulb, Users, Globe } from "lucide-react";
@@ -23,7 +22,7 @@ const About = () => {
                 Our Story
               </div>
               <h1
-                className="text-4xl md:text-5xl font-bold mb-6 animate-fade-in"
+                className="text-4xl md:text-5xl font-bold mb-6 text-foreground animate-fade-in"
                 style={{ animationDelay: "200ms" }}
               >
                 Revolutionizing Agriculture Through Intelligence
@@ -49,11 +48,10 @@ const About = () => {
                   <div className="aspect-square rounded-2xl overflow-hidden bg-nature-100 dark:bg-nature-900 relative">
                     <div className="absolute inset-0 bg-gradient-to-br from-nature-100/80 to-nature-300/50 dark:from-nature-800/80 dark:to-nature-600/30"></div>
                     <div className="absolute inset-0 flex items-center justify-center">
-                      
-                      <img 
-                        src="/28a87d9e-bf3b-4021-bd55-6a7c87f2f8f3.png" 
-                        alt="AgriVision Logo" 
-                        className="w-50 h-50 object-contain rounded-3xl" 
+                      <img
+                        src="/28a87d9e-bf3b-4021-bd55-6a7c87f2f8f3.png"
+                        alt="AgriVision Logo"
+                        className="w-50 h-50 object-contain rounded-3xl"
                       />
                     </div>
                   </div>
@@ -157,8 +155,10 @@ const About = () => {
                 {/* Team member cards would go here - using placeholders */}
                 {[
                   { name: "Dhanush C", role: "Student" },
-                  { name: "Sumit Singha Chowdhury", role: "Assistant Professor" },
-                  
+                  {
+                    name: "Sumit Singha Chowdhury",
+                    role: "Assistant Professor",
+                  },
                 ].map((member, index) => (
                   <div
                     key={index}

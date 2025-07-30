@@ -1,8 +1,7 @@
-
-import { useState, useRef, useEffect } from 'react';
-import { Languages, Check, ChevronDown } from 'lucide-react';
-import { useLanguage } from '../context/LanguageContext';
-import { Language } from '../translations';
+import { useState, useRef, useEffect } from "react";
+import { Languages, Check, ChevronDown } from "lucide-react";
+import { useLanguage } from "../context/LanguageContext";
+import { Language } from "../translations";
 
 const LanguageSelector = () => {
   const { language, setLanguage, t } = useLanguage();
@@ -10,11 +9,11 @@ const LanguageSelector = () => {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const languages: { code: Language; name: string }[] = [
-    { code: 'en', name: t('language.en') },
-    { code: 'hi', name: t('language.hi') },
-    { code: 'kn', name: t('language.kn') },
-    { code: 'ta', name: t('language.ta') },
-    { code: 'bn', name: t('language.bn') },
+    { code: "en", name: t("language.en") },
+    { code: "hi", name: t("language.hi") },
+    { code: "kn", name: t("language.kn") },
+    { code: "ta", name: t("language.ta") },
+    { code: "bn", name: t("language.bn") },
   ];
 
   const toggleDropdown = () => setIsOpen(!isOpen);
@@ -27,14 +26,17 @@ const LanguageSelector = () => {
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
@@ -47,8 +49,12 @@ const LanguageSelector = () => {
         aria-expanded={isOpen}
       >
         <Languages className="h-4 w-4" />
-        <span>{t('language')}</span>
-        <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        <span>{t("language")}</span>
+        <ChevronDown
+          className={`h-4 w-4 transition-transform ${
+            isOpen ? "rotate-180" : ""
+          }`}
+        />
       </button>
 
       {isOpen && (
@@ -57,12 +63,14 @@ const LanguageSelector = () => {
             <button
               key={lang.code}
               className={`w-full text-left px-4 py-2 hover:bg-secondary flex items-center ${
-                language === lang.code ? 'bg-primary/10 text-primary' : ''
+                language === lang.code
+                  ? "bg-primary text-primary-foreground"
+                  : "text-foreground"
               }`}
               onClick={() => selectLanguage(lang.code)}
             >
               {language === lang.code && <Check className="w-4 h-4 mr-2" />}
-              <span className={language === lang.code ? 'ml-0' : 'ml-6'}>
+              <span className={language === lang.code ? "ml-0" : "ml-6"}>
                 {lang.name}
               </span>
             </button>

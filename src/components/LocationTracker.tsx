@@ -207,29 +207,23 @@ const LocationTracker: React.FC<LocationTrackerProps> = ({
   }, []);
 
   return (
-    <div className="glass p-6 rounded-xl">
+    <div className="bg-card text-card-foreground border border-border shadow-lg p-6 rounded-xl">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold flex items-center gap-2">
+        <h3 className="text-lg font-semibold flex items-center gap-2 text-foreground">
           <MapPin className="w-5 h-5 text-primary" />
           Location Detection
         </h3>
-        {!isLoading && !showManualInput && (
-          <button
-            onClick={() => setShowManualInput(true)}
-            className="flex items-center gap-1 text-sm text-primary hover:text-primary/80 transition-colors"
-          >
-            <Edit className="w-4 h-4" />
-            Manual Entry
-          </button>
-        )}
+        {/* Manual Entry button removed. Only automatic detection remains. */}
       </div>
 
       {/* Loading State */}
       {isLoading && (
-        <div className="flex items-center gap-3 p-4 bg-primary/5 rounded-lg">
+        <div className="flex items-center gap-3 p-4 bg-secondary rounded-lg border border-border">
           <div className="animate-spin w-5 h-5 border-2 border-primary border-t-transparent rounded-full"></div>
           <div>
-            <p className="font-medium">Detecting your location...</p>
+            <p className="font-medium text-foreground">
+              Detecting your location...
+            </p>
             <p className="text-sm text-muted-foreground">
               Please allow location access when prompted
             </p>
@@ -239,16 +233,14 @@ const LocationTracker: React.FC<LocationTrackerProps> = ({
 
       {/* Error State with Better CTA */}
       {error && !showManualInput && (
-        <div className="p-4 bg-orange-50 dark:bg-orange-950/20 border border-orange-200 dark:border-orange-800 rounded-lg">
+        <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
           <div className="flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-orange-500 mt-0.5 flex-shrink-0" />
+            <AlertCircle className="w-5 h-5 text-destructive mt-0.5 flex-shrink-0" />
             <div className="flex-1">
-              <h4 className="font-medium text-orange-800 dark:text-orange-200 mb-1">
+              <h4 className="font-medium text-destructive mb-1">
                 Location Detection Failed
               </h4>
-              <p className="text-sm text-orange-700 dark:text-orange-300 mb-3">
-                {error}
-              </p>
+              <p className="text-sm text-destructive/80 mb-3">{error}</p>
               <div className="flex flex-wrap gap-2">
                 <button
                   onClick={handleGeolocation}
@@ -256,12 +248,6 @@ const LocationTracker: React.FC<LocationTrackerProps> = ({
                 >
                   <Navigation className="w-4 h-4" />
                   Try Again
-                </button>
-                <button
-                  onClick={() => setShowManualInput(true)}
-                  className="px-3 py-1.5 bg-primary/10 text-primary border border-primary/20 rounded-md text-sm hover:bg-primary/20 transition-colors"
-                >
-                  Enter Pincode Manually
                 </button>
               </div>
             </div>
@@ -271,16 +257,16 @@ const LocationTracker: React.FC<LocationTrackerProps> = ({
 
       {/* Success State with Location Info */}
       {!isLoading && !error && detectedLocation && !showManualInput && (
-        <div className="p-4 bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-lg">
+        <div className="p-4 bg-primary/10 border border-primary/20 rounded-lg">
           <div className="flex items-start gap-3">
-            <div className="w-5 h-5 bg-green-500 rounded-full flex-shrink-0 flex items-center justify-center mt-0.5">
-              <MapPin className="w-3 h-3 text-white" />
+            <div className="w-5 h-5 bg-primary rounded-full flex-shrink-0 flex items-center justify-center mt-0.5">
+              <MapPin className="w-3 h-3 text-primary-foreground" />
             </div>
             <div className="flex-1">
-              <h4 className="font-medium text-green-800 dark:text-green-200 mb-1">
+              <h4 className="font-medium text-primary mb-1">
                 Location Detected Successfully
               </h4>
-              <div className="text-sm text-green-700 dark:text-green-300 space-y-1">
+              <div className="text-sm text-primary/80 space-y-1">
                 <p>
                   <strong>Pincode:</strong> {detectedLocation.pincode}
                 </p>
@@ -289,7 +275,7 @@ const LocationTracker: React.FC<LocationTrackerProps> = ({
                   {detectedLocation.state}
                 </p>
               </div>
-              <p className="text-xs text-green-600 dark:text-green-400 mt-2">
+              <p className="text-xs text-primary/70 mt-2">
                 ✓ Crop recommendations are being generated based on your
                 location
               </p>
@@ -298,63 +284,7 @@ const LocationTracker: React.FC<LocationTrackerProps> = ({
         </div>
       )}
 
-      {/* Manual Input Form - Better Positioned */}
-      {showManualInput && (
-        <div className="space-y-4">
-          <div className="p-4 bg-primary/5 border border-primary/20 rounded-lg">
-            <h4 className="font-medium text-primary mb-3 flex items-center gap-2">
-              <Edit className="w-4 h-4" />
-              Enter Your Pincode
-            </h4>
-
-            <div className="space-y-3">
-              <div>
-                <label
-                  htmlFor="manual-pincode"
-                  className="block text-sm font-medium mb-1"
-                >
-                  6-Digit Pincode
-                </label>
-                <input
-                  id="manual-pincode"
-                  type="text"
-                  value={manualPincode}
-                  onChange={(e) => {
-                    const value = e.target.value.replace(/\D/g, "").slice(0, 6);
-                    setManualPincode(value);
-                  }}
-                  placeholder="e.g., 560001"
-                  className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                  maxLength={6}
-                  autoFocus
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Examples: 560001 (Bengaluru), 400001 (Mumbai), 110001 (Delhi)
-                </p>
-              </div>
-
-              <div className="flex gap-2">
-                <button
-                  onClick={handleManualSubmit}
-                  disabled={manualPincode.length !== 6}
-                  className="flex-1 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  Get Recommendations
-                </button>
-                <button
-                  onClick={() => {
-                    setShowManualInput(false);
-                    setManualPincode("");
-                  }}
-                  className="px-4 py-2 border border-border rounded-md text-sm hover:bg-secondary transition-colors"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Manual pincode entry removed. Only automatic location detection and display remain. */}
     </div>
   );
 };

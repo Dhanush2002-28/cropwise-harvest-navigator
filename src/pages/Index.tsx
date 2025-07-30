@@ -1,9 +1,11 @@
 import { useState } from "react";
+import UILoader from "../components/UILoader";
+import EmptyState from "../components/EmptyState";
+import { Toaster } from "../components/ui/toaster";
+import { useToast } from "../hooks/use-toast";
 import Navbar from "../components/Navbar";
 import Hero from "../components/Hero";
-import LocationTracker from "../components/LocationTracker";
-import ManualLocationInput from "../components/ManualLocationInput";
-import NPKInput from "../components/NPKInput";
+import NPKOrLocationSelector from "../components/NPKOrLocationSelector";
 import CropForm from "../components/CropForm";
 import RecommendationCard from "../components/RecommendationCard";
 import Footer from "../components/Footer";
@@ -57,33 +59,164 @@ interface RecommendationCardProps {
 
 const Index = () => {
   const { t } = useLanguage();
+  const { toast } = useToast();
   const [location, setLocation] = useState<Location | null>(null);
-  const [formData, setFormData] = useState<FormData>({
-    interestedCrops: "",
-  });
-  const [npk, setNpk] = useState({ n: 0, p: 0, k: 0 });
+  // Removed formData and CropForm step
+  const [npk, setNpk] = useState<{
+    n: number;
+    p: number;
+    k: number;
+    ph?: number;
+  }>({ n: 0, p: 0, k: 0 });
+  const [showLocationInput, setShowLocationInput] = useState(false);
   const [cropRecommendation, setCropRecommendation] =
     useState<CropRecommendation | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [loaderMessage, setLoaderMessage] = useState<string>("");
 
-  const handleLocationChange = (newLocation: Location) => {
-    setLocation(newLocation);
-    console.log("Location updated:", newLocation);
+  // Start over handler
+  const handleStartOver = () => {
+    setLocation(null);
+    setNpk({ n: 0, p: 0, k: 0 });
+    setCropRecommendation(null);
   };
 
-  const handleCropRecommendation = (recommendation: CropRecommendation) => {
-    setCropRecommendation(recommendation);
-    console.log("Crop recommendation received:", recommendation);
+  // Convert numerical NPK to categorical
+  const getNPKCategory = (n: number, p: number, k: number) => {
+    const N_status = n < 280 ? "Low" : n <= 560 ? "Medium" : "High";
+    const P_status = p < 10 ? "Low" : p <= 24.6 ? "Medium" : "High";
+    const K_status = k < 108 ? "Low" : k <= 280 ? "Medium" : "High";
+    return { N_status, P_status, K_status };
   };
 
-  const handleFormSubmit = (data: FormData) => {
-    setFormData(data);
+  // Handler for NPKOrLocationSelector
+  const handleNPKSubmit = (data: {
+    n: number;
+    p: number;
+    k: number;
+    ph?: number;
+  }) => {
+    console.log("Index.tsx handleNPKSubmit called with:", data);
+    console.log(
+      "Current states before update - loading:",
+      loading,
+      "cropRecommendation:",
+      cropRecommendation
+    );
+
+    setNpk(data);
+    setShowLocationInput(false);
+
+    // Always set a dummy location for manual NPK input
+    setLocation({
+      latitude: 0,
+      longitude: 0,
+      state: "Manual",
+      district: "Manual",
+      block: "Manual",
+      pincode: "Manual",
+    });
+
+    setLoaderMessage("Fetching recommendations based on NPK values...");
+    setLoading(true);
+
+    // Simulate recommendation fetch with realistic mock data
+    setTimeout(() => {
+      console.log(
+        "Timeout completed, setting loading to false and adding recommendations..."
+      );
+
+      const newRecommendation = {
+        pincode: "Manual",
+        location: {
+          state: "Manual",
+          district: "Manual",
+          block: "Manual",
+        },
+        soil_data: {
+          nitrogen: data.n,
+          phosphorous: data.p,
+          potassium: data.k,
+          ph: data.ph || 7,
+        },
+        weather_data: { temperature: 28, rainfall: 120, year: 2025 },
+        recommended_crops: [
+          { crop: "Rice", probability: 0.92 },
+          { crop: "Wheat", probability: 0.85 },
+          { crop: "Maize", probability: 0.78 },
+        ],
+      };
+
+      setLoading(false);
+      setCropRecommendation(newRecommendation);
+
+      toast({
+        title: "Recommendations Ready",
+        description: "Your crop recommendations are ready! (Demo Mode)",
+      });
+    }, 1800);
   };
 
-  // Add debug logging to see when NPK values change
-  const handleNpkChange = (newNpk: { n: number; p: number; k: number }) => {
-    console.log("NPK state updated in Index:", newNpk);
-    setNpk(newNpk);
+  // Handler for manual location input
+  const handleManualLocation = ({
+    state,
+    district,
+    block,
+  }: {
+    state: string;
+    district: string;
+    block: string;
+  }) => {
+    setLocation({
+      latitude: 0,
+      longitude: 0,
+      state,
+      district,
+      block,
+      pincode: "Manual",
+    });
+    setLoaderMessage(`Fetching recommendations for ${district}, ${state}...`);
+    setLoading(true);
+
+    // Simulate recommendation fetch with location-specific mock data
+    setTimeout(() => {
+      setLoading(false);
+      setCropRecommendation({
+        pincode: "Manual",
+        location: { state, district, block },
+        soil_data: {
+          nitrogen: npk.n || 300,
+          phosphorous: npk.p || 15,
+          potassium: npk.k || 120,
+          ph: npk.ph || 6.8,
+        },
+        weather_data: { temperature: 26, rainfall: 180, year: 2025 },
+        recommended_crops: [
+          { crop: "Rice", probability: 0.89 },
+          { crop: "Sugarcane", probability: 0.82 },
+          { crop: "Cotton", probability: 0.75 },
+        ],
+      });
+      toast({
+        title: "Recommendations Ready",
+        description: `Crop recommendations for ${district}, ${state} are ready! (Demo Mode)`,
+      });
+    }, 1800);
   };
+
+  // Removed handleFormSubmit and CropForm
+
+  // Debug logging
+  console.log(
+    "Current render state - loading:",
+    loading,
+    "cropRecommendation:",
+    !!cropRecommendation,
+    "cropRecommendation === null:",
+    cropRecommendation === null,
+    "typeof cropRecommendation:",
+    typeof cropRecommendation
+  );
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -106,21 +239,41 @@ const Index = () => {
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="space-y-8">
-                  <LocationTracker
-                    onLocationChange={handleLocationChange}
-                    onCropRecommendation={handleCropRecommendation}
-                  />
-                  <NPKInput onChange={handleNpkChange} />
-                  <CropForm onSubmit={handleFormSubmit} />
-                </div>
-                <div>
-                  <RecommendationCard
-                    location={location}
-                    npk={npk}
-                    cropRecommendation={cropRecommendation}
-                  />
+              <div className="flex flex-col items-center justify-center min-h-[70vh]">
+                {/* Centered Questionnaire with enhanced styling */}
+                <div className="w-full max-w-4xl">
+                  {/* Only show the questionnaire until it's complete */}
+                  {cropRecommendation === null ? (
+                    <div>
+                      <p className="text-sm text-gray-500 mb-4">
+                        Debug: Showing NPKOrLocationSelector (cropRecommendation
+                        is null: {String(cropRecommendation === null)})
+                      </p>
+                      <NPKOrLocationSelector
+                        onNPKSubmit={handleNPKSubmit}
+                        onLocationSubmit={handleManualLocation}
+                      />
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center gap-8 mt-8 w-full">
+                      <p className="text-sm text-green-500 mb-4">
+                        Debug: Showing RecommendationCard
+                      </p>
+                      <div className="w-full flex justify-center">
+                        <RecommendationCard
+                          location={location}
+                          npk={npk}
+                          cropRecommendation={cropRecommendation}
+                        />
+                      </div>
+                      <button
+                        className="mt-4 px-6 py-3 rounded-xl bg-primary text-primary-foreground font-semibold text-base hover:bg-primary/90 transition"
+                        onClick={handleStartOver}
+                      >
+                        Start Over
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -185,6 +338,10 @@ const Index = () => {
       </main>
 
       <Footer />
+      <Toaster />
+      {loading && (
+        <UILoader message={loaderMessage || "Fetching recommendations..."} />
+      )}
     </div>
   );
 };
