@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { MapPin, Search } from "lucide-react";
+import locationHierarchy from "../data/location_hierarchy.json";
 
 interface ManualLocationInputProps {
   onLocationSubmit: (location: {
@@ -9,34 +10,6 @@ interface ManualLocationInputProps {
   }) => void;
   isLoading?: boolean;
 }
-
-// State, District, Block data for 4 states
-const locationData = {
-  Goa: {
-    "North Goa": ["Bardez", "Bicholim", "Pernem", "Sattari", "Tiswadi"],
-    "South Goa": ["Canacona", "Mormugao", "Quepem", "Salcete", "Sanguem"],
-  },
-  Gujarat: {
-    Ahmedabad: ["Daskroi", "Detroj-Rampura", "Sanand", "Viramgam"],
-    Surat: ["Bardoli", "Choryasi", "Kamrej", "Olpad"],
-    Vadodara: ["Dabhoi", "Karjan", "Padra", "Savli"],
-  },
-  Karnataka: {
-    "Bengaluru Urban": [
-      "Anekal",
-      "Bangalore North",
-      "Bangalore South",
-      "Yelahanka",
-    ],
-    Mysuru: ["Heggadadevankote", "Krishnarajanagara", "Mysore", "Nanjangud"],
-    Belagavi: ["Athani", "Bailhongal", "Belgaum", "Chikodi"],
-  },
-  "Tamil Nadu": {
-    Chennai: ["Ambattur", "Alandur", "Madhavaram", "Tondiarpet"],
-    Coimbatore: ["Annur", "Coimbatore North", "Mettupalayam", "Pollachi"],
-    Madurai: ["Melur", "Peraiyur", "Thirumangalam", "Usilampatti"],
-  },
-};
 
 const ManualLocationInput: React.FC<ManualLocationInputProps> = ({
   onLocationSubmit,
@@ -75,6 +48,16 @@ const ManualLocationInput: React.FC<ManualLocationInputProps> = ({
     }
   };
 
+  // Use locationHierarchy for dropdown options
+  const stateOptions = Object.keys(locationHierarchy);
+  const districtOptions = selectedState
+    ? Object.keys(locationHierarchy[selectedState])
+    : [];
+  const blockOptions =
+    selectedState && selectedDistrict
+      ? locationHierarchy[selectedState][selectedDistrict]
+      : [];
+
   return (
     <div className="bg-card text-card-foreground border border-border shadow-lg p-6 rounded-xl">
       <div className="flex items-center gap-2 mb-4">
@@ -100,7 +83,7 @@ const ManualLocationInput: React.FC<ManualLocationInputProps> = ({
             disabled={isLoading}
           >
             <option value="">Select State</option>
-            {Object.keys(locationData).map((state) => (
+            {stateOptions.map((state) => (
               <option key={state} value={state}>
                 {state}
               </option>
@@ -124,7 +107,7 @@ const ManualLocationInput: React.FC<ManualLocationInputProps> = ({
               disabled={isLoading}
             >
               <option value="">Select District</option>
-              {Object.keys(locationData[selectedState]).map((district) => (
+              {districtOptions.map((district) => (
                 <option key={district} value={district}>
                   {district}
                 </option>
@@ -149,13 +132,11 @@ const ManualLocationInput: React.FC<ManualLocationInputProps> = ({
               disabled={isLoading}
             >
               <option value="">Select Block</option>
-              {locationData[selectedState][selectedDistrict].map(
-                (block: string) => (
-                  <option key={block} value={block}>
-                    {block}
-                  </option>
-                )
-              )}
+              {blockOptions.map((block: string) => (
+                <option key={block} value={block}>
+                  {block}
+                </option>
+              ))}
             </select>
           </div>
         )}

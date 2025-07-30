@@ -11,8 +11,8 @@ interface Location {
 }
 
 interface CropRecommendation {
-  pincode: string;
-  location: {
+  pincode?: string;
+  location?: {
     state: string;
     district: string;
     block: string;
@@ -28,10 +28,7 @@ interface CropRecommendation {
     rainfall: number;
     year: number;
   };
-  recommended_crops: Array<{
-    crop: string;
-    probability: number;
-  }>;
+  recommended_crops: Array<{ crop: string; probability: number }>;
 }
 
 interface RecommendationCardProps {
@@ -130,9 +127,18 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({
   // Use soil data from crop recommendation if available, otherwise use NPK input
   const displayNPK = cropRecommendation?.soil_data
     ? {
-        n: Math.round(cropRecommendation.soil_data.nitrogen),
-        p: Math.round(cropRecommendation.soil_data.phosphorous),
-        k: Math.round(cropRecommendation.soil_data.potassium),
+        n:
+          typeof cropRecommendation.soil_data.nitrogen === "number"
+            ? Math.round(cropRecommendation.soil_data.nitrogen)
+            : cropRecommendation.soil_data.nitrogen || "-",
+        p:
+          typeof cropRecommendation.soil_data.phosphorous === "number"
+            ? Math.round(cropRecommendation.soil_data.phosphorous)
+            : cropRecommendation.soil_data.phosphorous || "-",
+        k:
+          typeof cropRecommendation.soil_data.potassium === "number"
+            ? Math.round(cropRecommendation.soil_data.potassium)
+            : cropRecommendation.soil_data.potassium || "-",
       }
     : npk;
 
@@ -221,18 +227,29 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({
                 <div className="space-y-1 text-sm">
                   <div className="text-foreground">
                     <span className="font-medium">pH:</span>{" "}
-                    {cropRecommendation.soil_data.ph.toFixed(1)}
+                    {typeof cropRecommendation.soil_data.ph === "number"
+                      ? cropRecommendation.soil_data.ph.toFixed(1)
+                      : cropRecommendation.soil_data.ph || "-"}
                   </div>
                   {cropRecommendation?.weather_data && (
                     <>
                       <div className="text-foreground">
                         <span className="font-medium">Temp:</span>{" "}
-                        {cropRecommendation.weather_data.temperature.toFixed(1)}
+                        {typeof cropRecommendation.weather_data.temperature ===
+                        "number"
+                          ? cropRecommendation.weather_data.temperature.toFixed(
+                              1
+                            )
+                          : "-"}
                         °C
                       </div>
                       <div className="text-foreground">
                         <span className="font-medium">Rain:</span>{" "}
-                        {cropRecommendation.weather_data.rainfall.toFixed(0)}mm
+                        {typeof cropRecommendation.weather_data.rainfall ===
+                        "number"
+                          ? cropRecommendation.weather_data.rainfall.toFixed(0)
+                          : "-"}
+                        mm
                       </div>
                     </>
                   )}
@@ -267,8 +284,8 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {cropRecommendation.recommended_crops
                   .slice(0, 4)
-                  .map((crop, index) => {
-                    const tips = getCropTips(crop.crop);
+                  .map((cropObj, index) => {
+                    const tips = getCropTips(cropObj.crop);
                     return (
                       <div
                         key={index}
@@ -286,23 +303,8 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({
 
                         {/* Crop Name */}
                         <h5 className="font-semibold text-lg mb-1 text-foreground">
-                          {crop.crop}
+                          {cropObj.crop}
                         </h5>
-
-                        {/* Suitability */}
-                        <p className="text-sm text-foreground mb-3">
-                          {Math.round(crop.probability * 100)}% Suitable
-                        </p>
-
-                        {/* Progress Bar */}
-                        <div className="mb-4">
-                          <div className="bg-muted rounded-full h-2">
-                            <div
-                              className="bg-primary h-2 rounded-full transition-all duration-500"
-                              style={{ width: `${crop.probability * 100}%` }}
-                            ></div>
-                          </div>
-                        </div>
 
                         {/* Season */}
                         <div className="text-xs text-foreground mb-3">

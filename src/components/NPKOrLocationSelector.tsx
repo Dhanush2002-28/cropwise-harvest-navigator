@@ -7,6 +7,7 @@ import {
   TooltipTrigger,
   TooltipContent,
 } from "./ui/tooltip";
+import { reverseGeocode } from "../services/reverseGeocodeService";
 
 interface NPKOrLocationSelectorProps {
   onNPKSubmit: (values: {
@@ -82,10 +83,7 @@ const NPKOrLocationSelector: React.FC<NPKOrLocationSelectorProps> = ({
         clearTimeout(timeoutId);
         const { latitude, longitude } = position.coords;
         try {
-          // Use Nominatim reverse geocoding API (OpenStreetMap, no key required)
-          const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10&addressdetails=1`;
-          const res = await fetch(url);
-          const data = await res.json();
+          const data = await reverseGeocode(latitude, longitude);
           const address = data.address || {};
           const state = address.state || address.state_district || "";
           const district =
@@ -133,13 +131,11 @@ const NPKOrLocationSelector: React.FC<NPKOrLocationSelectorProps> = ({
 
   const handleNPKSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("NPK Submit triggered with values:", npk);
     if (!npk.n || !npk.p || !npk.k) {
       setError("N, P, and K values are required.");
       return;
     }
     setError("");
-    console.log("Calling onNPKSubmit...");
     onNPKSubmit({
       n: parseFloat(npk.n),
       p: parseFloat(npk.p),
@@ -329,11 +325,16 @@ const NPKOrLocationSelector: React.FC<NPKOrLocationSelectorProps> = ({
               <div className="flex flex-col gap-4 mt-8">
                 <button
                   type="submit"
-                  className="w-full py-4 rounded-xl text-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl bg-[var(--primary,#22c55e)] text-[var(--primary-foreground,#fff)] hover:bg-[var(--primary,#16a34a)] dark:bg-[var(--primary,#22c55e)] dark:text-[var(--primary-foreground,#fff)] dark:hover:bg-[var(--primary,#16a34a)]"
+                  style={{
+                    background: "#39FF14",
+                    color: "#111",
+                    border: "2px solid #111",
+                    fontWeight: 800,
+                  }}
+                  className="w-full py-4 rounded-xl text-xl transition-all duration-200 shadow-lg hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-[#22c55e]"
                 >
                   🌾 Get Crop Recommendations
                 </button>
-                
 
                 <div className="flex flex-col md:flex-row gap-3">
                   <button

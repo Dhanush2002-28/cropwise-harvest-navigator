@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { getCropRecommendations } from "../services/cropRecommendationService";
 import UILoader from "../components/UILoader";
 import EmptyState from "../components/EmptyState";
 import { Toaster } from "../components/ui/toaster";
@@ -25,8 +26,8 @@ interface FormData {
   interestedCrops: string;
 }
 
-// Update the CropRecommendation interface:
-interface CropRecommendation {
+// Local interface to avoid conflict with imported CropRecommendation type
+interface LocalCropRecommendation {
   pincode: string;
   location: {
     state: string;
@@ -54,7 +55,7 @@ interface CropRecommendation {
 interface RecommendationCardProps {
   location: Location | null;
   npk: { n: number; p: number; k: number };
-  cropRecommendation?: CropRecommendation | null;
+  cropRecommendation?: LocalCropRecommendation | null;
 }
 
 const Index = () => {
@@ -70,7 +71,7 @@ const Index = () => {
   }>({ n: 0, p: 0, k: 0 });
   const [showLocationInput, setShowLocationInput] = useState(false);
   const [cropRecommendation, setCropRecommendation] =
-    useState<CropRecommendation | null>(null);
+    useState<LocalCropRecommendation | null>(null);
   const [loading, setLoading] = useState(false);
   const [loaderMessage, setLoaderMessage] = useState<string>("");
 
@@ -90,24 +91,14 @@ const Index = () => {
   };
 
   // Handler for NPKOrLocationSelector
-  const handleNPKSubmit = (data: {
+  const handleNPKSubmit = async (data: {
     n: number;
     p: number;
     k: number;
     ph?: number;
   }) => {
-    console.log("Index.tsx handleNPKSubmit called with:", data);
-    console.log(
-      "Current states before update - loading:",
-      loading,
-      "cropRecommendation:",
-      cropRecommendation
-    );
-
     setNpk(data);
     setShowLocationInput(false);
-
-    // Always set a dummy location for manual NPK input
     setLocation({
       latitude: 0,
       longitude: 0,
@@ -116,17 +107,28 @@ const Index = () => {
       block: "Manual",
       pincode: "Manual",
     });
-
     setLoaderMessage("Fetching recommendations based on NPK values...");
     setLoading(true);
-
-    // Simulate recommendation fetch with realistic mock data
-    setTimeout(() => {
-      console.log(
-        "Timeout completed, setting loading to false and adding recommendations..."
-      );
-
-      const newRecommendation = {
+    setCropRecommendation(null);
+    try {
+      // Convert NPK values to status
+      const N_status = data.n < 280 ? "Low" : data.n <= 560 ? "Medium" : "High";
+      const P_status = data.p < 10 ? "Low" : data.p <= 24.6 ? "Medium" : "High";
+      const K_status = data.k < 108 ? "Low" : data.k <= 280 ? "Medium" : "High";
+      let ph_status: "Acidic" | "Neutral" | "Alkaline" = "Neutral";
+      if (data.ph !== undefined) {
+        if (data.ph < 6.5) ph_status = "Acidic";
+        else if (data.ph > 7.5) ph_status = "Alkaline";
+      }
+      const response = await getCropRecommendations({
+        method: "npk",
+        nitrogen_status: N_status,
+        phosphorus_status: P_status,
+        potassium_status: K_status,
+        ph_status,
+      });
+      setLoading(false);
+      setCropRecommendation({
         pincode: "Manual",
         location: {
           state: "Manual",
@@ -137,28 +139,38 @@ const Index = () => {
           nitrogen: data.n,
           phosphorous: data.p,
           potassium: data.k,
-          ph: data.ph || 7,
+          ph: data.ph,
         },
-        weather_data: { temperature: 28, rainfall: 120, year: 2025 },
-        recommended_crops: [
-          { crop: "Rice", probability: 0.92 },
-          { crop: "Wheat", probability: 0.85 },
-          { crop: "Maize", probability: 0.78 },
-        ],
-      };
-
-      setLoading(false);
-      setCropRecommendation(newRecommendation);
-
+        weather_data: undefined,
+        recommended_crops: Array.isArray(response)
+          ? response.map((crop) => ({ crop, probability: 1 }))
+          : Array.isArray(response.predictions)
+          ? response.predictions.map((crop) => ({ crop, probability: 1 }))
+          : [],
+      });
       toast({
         title: "Recommendations Ready",
-        description: "Your crop recommendations are ready! (Demo Mode)",
+        description: "Your crop recommendations are ready!",
       });
-    }, 1800);
+    } catch (err: unknown) {
+      setLoading(false);
+      let message = "Failed to fetch recommendations.";
+      if (err && typeof err === "object" && "message" in err) {
+        const e = err as { message?: string };
+        if (typeof e.message === "string") {
+          message = e.message;
+        }
+      }
+      toast({
+        title: "Error",
+        description: message,
+        variant: "destructive",
+      });
+    }
   };
 
   // Handler for manual location input
-  const handleManualLocation = ({
+  const handleManualLocation = async ({
     state,
     district,
     block,
@@ -177,31 +189,61 @@ const Index = () => {
     });
     setLoaderMessage(`Fetching recommendations for ${district}, ${state}...`);
     setLoading(true);
-
-    // Simulate recommendation fetch with location-specific mock data
-    setTimeout(() => {
+    setCropRecommendation(null);
+    try {
+      const response = await getCropRecommendations({
+        method: "manual_location",
+        state,
+        district,
+        block,
+      });
       setLoading(false);
       setCropRecommendation({
         pincode: "Manual",
-        location: { state, district, block },
-        soil_data: {
-          nitrogen: npk.n || 300,
-          phosphorous: npk.p || 15,
-          potassium: npk.k || 120,
-          ph: npk.ph || 6.8,
+        location: {
+          state: response.nearest_state || state,
+          district: response.nearest_district || district,
+          block: response.nearest_block || block,
         },
-        weather_data: { temperature: 26, rainfall: 180, year: 2025 },
-        recommended_crops: [
-          { crop: "Rice", probability: 0.89 },
-          { crop: "Sugarcane", probability: 0.82 },
-          { crop: "Cotton", probability: 0.75 },
-        ],
+        // Use backend soil_data if present, else undefined
+        soil_data: response.soil_data
+          ? {
+              nitrogen: response.soil_data.nitrogen,
+              phosphorous: response.soil_data.phosphorous,
+              potassium: response.soil_data.potassium,
+              ph: response.soil_data.ph,
+            }
+          : undefined,
+        weather_data: response.weather_data,
+        recommended_crops: Array.isArray(response.predictions)
+          ? response.predictions.map((crop) => ({ crop, probability: 1 }))
+          : [],
       });
+      console.log('[DEBUG] Backend response:', response);
+      if (response.soil_data) {
+        console.log('[DEBUG] Backend soil_data:', response.soil_data);
+      }
       toast({
         title: "Recommendations Ready",
-        description: `Crop recommendations for ${district}, ${state} are ready! (Demo Mode)`,
+        description: `Crop recommendations for ${
+          response.nearest_district || district
+        }, ${response.nearest_state || state} are ready!`,
       });
-    }, 1800);
+    } catch (err: unknown) {
+      setLoading(false);
+      let message = "Failed to fetch recommendations.";
+      if (err && typeof err === "object" && "message" in err) {
+        const e = err as { message?: string };
+        if (typeof e.message === "string") {
+          message = e.message;
+        }
+      }
+      toast({
+        title: "Error",
+        description: message,
+        variant: "destructive",
+      });
+    }
   };
 
   // Removed handleFormSubmit and CropForm
@@ -265,6 +307,7 @@ const Index = () => {
                           npk={npk}
                           cropRecommendation={cropRecommendation}
                         />
+                        
                       </div>
                       <button
                         className="mt-4 px-6 py-3 rounded-xl bg-primary text-primary-foreground font-semibold text-base hover:bg-primary/90 transition"

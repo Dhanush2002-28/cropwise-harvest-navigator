@@ -7,9 +7,7 @@ interface NPKInputProps {
 const NPKInput: React.FC<NPKInputProps> = ({ onChange }) => {
   const [npk, setNpk] = useState({ n: 0, p: 0, k: 0 });
 
-  // Add this debug effect to see when values change
   useEffect(() => {
-    console.log("NPK values updated:", npk);
     onChange(npk);
   }, [npk, onChange]);
 
@@ -17,7 +15,6 @@ const NPKInput: React.FC<NPKInputProps> = ({ onChange }) => {
     const numValue = parseFloat(value) || 0;
     const newNpk = { ...npk, [field]: numValue };
 
-    console.log(`NPK ${field} changed to:`, numValue); // Debug log
     setNpk(newNpk);
   };
 

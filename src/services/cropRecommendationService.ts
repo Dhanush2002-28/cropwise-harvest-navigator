@@ -1,5 +1,5 @@
 // Base URL for the API - update this to match your backend
-const API_BASE_URL = "http://127.0.0.1:5000/api";
+const API_BASE_URL = "http://127.0.0.1:8000/api";
 
 // Interfaces for different recommendation methods
 export interface LocationBasedRequest {
@@ -25,11 +25,9 @@ export interface NPKBasedRequest {
 
 export type CropRecommendationRequest = LocationBasedRequest | ManualLocationRequest | NPKBasedRequest;
 
-export interface CropRecommendation {
-    crop: string;
-    confidence: number;
-    rank: number;
-}
+
+// Backend now returns only crop names (string[]), not objects
+export type CropRecommendation = string;
 
 export interface LocationInfo {
     state?: string;
@@ -48,16 +46,19 @@ export interface BlockInfo {
     data_points?: number;
 }
 
+
+// Backend now returns just string[] for recommendations
 export interface CropRecommendationResponse {
-    success: boolean;
-    method: string;
-    location?: LocationInfo;
-    block?: BlockInfo;
-    input_parameters?: Record<string, string>;
-    recommendations: CropRecommendation[];
-    error?: string;
-    needs_manual_selection?: boolean;
-    available_blocks?: string[];
+    nearest_state?: string;
+    nearest_district?: string;
+    nearest_block?: string;
+    predictions: string[];
+    soil_data?: {
+        nitrogen: number;
+        phosphorous: number;
+        potassium: number;
+        ph: number;
+    };
 }
 
 export interface LocationResolutionResponse {
@@ -78,27 +79,50 @@ export interface CoverageInfo {
 }
 
 // Main crop recommendation function
+
+// New API endpoints: /predict/location and /predict/npk
 export async function getCropRecommendations(
     data: CropRecommendationRequest
 ): Promise<CropRecommendationResponse> {
-    console.log("Making crop recommendation request:", data);
+    let url = "";
+    let body: Record<string, unknown> = {};
+    if (data.method === "location" || data.method === "manual_location") {
+        const loc = data as ManualLocationRequest;
+        url = `${API_BASE_URL.replace(/\/api$/, "")}/predict/location`;
+        body = {
+            state: loc.state,
+            district: loc.district,
+            block: loc.block,
+            top_n: 5
+        };
+    } else if (data.method === "npk") {
+        const npk = data as NPKBasedRequest;
+        url = `${API_BASE_URL.replace(/\/api$/, "")}/predict/npk`;
+        body = {
+            nitrogen_status: npk.nitrogen_status,
+            phosphorus_status: npk.phosphorus_status,
+            potassium_status: npk.potassium_status,
+            ph_status: npk.ph_status,
+            top_n: 5
+        };
+    } else {
+        throw new Error("Unknown recommendation method");
+    }
 
-    const response = await fetch(`${API_BASE_URL}/recommend-crops`, {
+    const response = await fetch(url, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(body),
     });
 
-    console.log("Response status:", response.status);
     const result = await response.json();
-    console.log("Response body:", result);
-
     if (!response.ok) {
-        throw new Error(result.error || "Failed to fetch crop recommendations");
+        throw new Error(result.detail || "Failed to fetch crop recommendations");
     }
-
+    // For location-based requests, backend returns { nearest_state, nearest_district, nearest_block, predictions }
+    // For NPK-based, backend returns string[]
     return result;
 }
 
