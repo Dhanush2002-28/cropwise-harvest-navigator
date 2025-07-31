@@ -1,5 +1,5 @@
 // Base URL for the API - update this to match your backend
-const API_BASE_URL = "https://your-backend-name.onrender.com/api"; // Replace with your actual Render URL
+const API_BASE_URL = "https://agrivision-backend.onrender.com"; // Replace with your actual Render URL
 
 // Interfaces for different recommendation methods
 export interface LocationBasedRequest {
