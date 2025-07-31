@@ -9,6 +9,7 @@ import Hero from "../components/Hero";
 import NPKOrLocationSelector from "../components/NPKOrLocationSelector";
 import CropForm from "../components/CropForm";
 import RecommendationCard from "../components/RecommendationCard";
+import CoverageMap from "../components/CoverageMap";
 import Footer from "../components/Footer";
 import { ArrowRight, Leaf, Wheat } from "lucide-react";
 import { useLanguage } from "../context/LanguageContext";
@@ -214,15 +215,12 @@ const Index = () => {
               ph: response.soil_data.ph,
             }
           : undefined,
-        weather_data: response.weather_data,
+        // weather_data: response.weather_data, // Removed because property does not exist
+        weather_data: undefined,
         recommended_crops: Array.isArray(response.predictions)
           ? response.predictions.map((crop) => ({ crop, probability: 1 }))
           : [],
-      });
-      console.log('[DEBUG] Backend response:', response);
-      if (response.soil_data) {
-        console.log('[DEBUG] Backend soil_data:', response.soil_data);
-      }
+      });      
       toast({
         title: "Recommendations Ready",
         description: `Crop recommendations for ${
@@ -248,17 +246,6 @@ const Index = () => {
 
   // Removed handleFormSubmit and CropForm
 
-  // Debug logging
-  console.log(
-    "Current render state - loading:",
-    loading,
-    "cropRecommendation:",
-    !!cropRecommendation,
-    "cropRecommendation === null:",
-    cropRecommendation === null,
-    "typeof cropRecommendation:",
-    typeof cropRecommendation
-  );
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -287,10 +274,7 @@ const Index = () => {
                   {/* Only show the questionnaire until it's complete */}
                   {cropRecommendation === null ? (
                     <div>
-                      <p className="text-sm text-gray-500 mb-4">
-                        Debug: Showing NPKOrLocationSelector (cropRecommendation
-                        is null: {String(cropRecommendation === null)})
-                      </p>
+                      
                       <NPKOrLocationSelector
                         onNPKSubmit={handleNPKSubmit}
                         onLocationSubmit={handleManualLocation}
@@ -298,16 +282,13 @@ const Index = () => {
                     </div>
                   ) : (
                     <div className="flex flex-col items-center gap-8 mt-8 w-full">
-                      <p className="text-sm text-green-500 mb-4">
-                        Debug: Showing RecommendationCard
-                      </p>
+                      
                       <div className="w-full flex justify-center">
                         <RecommendationCard
                           location={location}
                           npk={npk}
                           cropRecommendation={cropRecommendation}
                         />
-                        
                       </div>
                       <button
                         className="mt-4 px-6 py-3 rounded-xl bg-primary text-primary-foreground font-semibold text-base hover:bg-primary/90 transition"
@@ -378,6 +359,9 @@ const Index = () => {
             </div>
           </div>
         </section>
+
+        {/* Coverage Map Section */}
+        
       </main>
 
       <Footer />
