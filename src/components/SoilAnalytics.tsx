@@ -313,9 +313,7 @@ const SoilAnalytics: React.FC<SoilAnalyticsProps> = ({
                     ? soilData.nitrogen
                     : soilData.nitrogen || "N/A"}
                 </p>
-                <Badge className={getStatusColor(npkStatus.nitrogen)}>
-                  {npkStatus.nitrogen}
-                </Badge>
+                
               </div>
             </div>
           </CardContent>
