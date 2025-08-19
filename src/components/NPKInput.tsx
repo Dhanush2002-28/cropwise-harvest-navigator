@@ -45,7 +45,7 @@ const NPKInput: React.FC<NPKInputProps> = ({ onChange }) => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
           <label className="block text-sm font-medium mb-2 text-foreground">
-            Nitrogen (N)
+            Nitrogen (N) kg/ha
           </label>
           <input
             type="number"
@@ -61,7 +61,7 @@ const NPKInput: React.FC<NPKInputProps> = ({ onChange }) => {
 
         <div>
           <label className="block text-sm font-medium mb-2 text-foreground">
-            Phosphorus (P)
+            Phosphorus (P) kg/ha
           </label>
           <input
             type="number"
@@ -77,7 +77,7 @@ const NPKInput: React.FC<NPKInputProps> = ({ onChange }) => {
 
         <div>
           <label className="block text-sm font-medium mb-2 text-foreground">
-            Potassium (K)
+            Potassium (K) kg/ha
           </label>
           <input
             type="number"
