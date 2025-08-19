@@ -9,7 +9,6 @@ import Hero from "../components/Hero";
 import NPKOrLocationSelector from "../components/NPKOrLocationSelector";
 import CropForm from "../components/CropForm";
 import RecommendationCard from "../components/RecommendationCard";
-import CoverageMap from "../components/CoverageMap";
 import Footer from "../components/Footer";
 import { ArrowRight, Leaf, Wheat } from "lucide-react";
 import { useLanguage } from "../context/LanguageContext";

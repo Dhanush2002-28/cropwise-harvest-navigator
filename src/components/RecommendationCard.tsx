@@ -1,5 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import { useLanguage } from "../context/LanguageContext";
+import SoilAnalytics from "./SoilAnalytics";
+import CropDetail from "./CropDetail";
 
 interface Location {
   latitude: number;
@@ -104,6 +106,41 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({
   cropRecommendation,
 }) => {
   const { t } = useLanguage();
+  const [selectedCrop, setSelectedCrop] = useState<string | null>(null);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
+  const handleCropClick = async (cropName: string) => {
+    setIsTransitioning(true);
+    // Small delay for smooth transition
+    await new Promise((resolve) => setTimeout(resolve, 150));
+    setSelectedCrop(cropName);
+    setIsTransitioning(false);
+  };
+
+  // If transitioning, show a loading state
+  if (isTransitioning) {
+    return (
+      <div className="w-full max-w-6xl flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading detailed analytics...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // If a crop is selected, show the detailed view
+  if (selectedCrop) {
+    return (
+      <div className="w-full max-w-6xl">
+        <CropDetail
+          cropName={selectedCrop}
+          onBack={() => setSelectedCrop(null)}
+          soilData={cropRecommendation?.soil_data}
+        />
+      </div>
+    );
+  }
 
   if (!location) {
     return (
@@ -277,9 +314,14 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({
 
           {/* Crop Recommendations - Horizontal Layout */}
           <div>
-            <h4 className="text-xl font-semibold mb-4 flex items-center gap-2 text-foreground">
-              <span className="text-lg">🌾</span> Recommended Crops
-            </h4>
+            <div className="flex items-center justify-between mb-4">
+              <h4 className="text-xl font-semibold flex items-center gap-2 text-foreground">
+                <span className="text-lg">🌾</span> Recommended Crops
+              </h4>
+              <p className="text-sm text-muted-foreground">
+                Click any crop for detailed analytics 📊
+              </p>
+            </div>
             {cropRecommendation && cropRecommendation.recommended_crops ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {cropRecommendation.recommended_crops
@@ -289,7 +331,15 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({
                     return (
                       <div
                         key={index}
-                        className="bg-secondary rounded-lg p-6 border border-border hover:bg-accent transition-all"
+                        onClick={() => handleCropClick(cropObj.crop)}
+                        className="crop-card bg-secondary rounded-lg p-6 border border-border hover:bg-accent"
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            handleCropClick(cropObj.crop);
+                          }
+                        }}
                       >
                         {/* Crop Header */}
                         <div className="flex items-center justify-between mb-4">
@@ -305,6 +355,9 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({
                         <h5 className="font-semibold text-lg mb-1 text-foreground">
                           {cropObj.crop}
                         </h5>
+                        <p className="text-xs text-primary mb-2 font-medium">
+                          📊 Click for detailed analysis
+                        </p>
 
                         {/* Season */}
                         <div className="text-xs text-foreground mb-3">
@@ -359,6 +412,19 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({
               </div>
             )}
           </div>
+
+          {/* Soil Analytics Section */}
+          {cropRecommendation?.soil_data && (
+            <div className="mt-8">
+              <h4 className="text-xl font-semibold mb-4 flex items-center gap-2 text-foreground">
+                <span className="text-lg">📊</span> Soil Analytics
+              </h4>
+              <SoilAnalytics
+                soilData={cropRecommendation.soil_data}
+                recommendedCrops={cropRecommendation.recommended_crops}
+              />
+            </div>
+          )}
         </div>
       </div>
     </div>
