@@ -224,7 +224,7 @@ const NPKOrLocationSelector: React.FC<NPKOrLocationSelectorProps> = ({
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div>
                   <label className="text-base font-medium mb-2 flex items-center gap-1 text-[var(--foreground,#18181b)] dark:text-[var(--foreground,#f3f4f6)]">
-                    Nitrogen (N)*
+                    Nitrogen (N) kg/ha*
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <span tabIndex={0}>
@@ -248,7 +248,7 @@ const NPKOrLocationSelector: React.FC<NPKOrLocationSelectorProps> = ({
                 </div>
                 <div>
                   <label className="text-base font-medium mb-2 flex items-center gap-1 text-foreground">
-                    Phosphorus (P)*
+                    Phosphorus (P) kg/ha*
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <span tabIndex={0}>
@@ -273,7 +273,7 @@ const NPKOrLocationSelector: React.FC<NPKOrLocationSelectorProps> = ({
                 </div>
                 <div>
                   <label className="text-base font-medium mb-2 flex items-center gap-1 text-foreground">
-                    Potassium (K)*
+                    Potassium (K) kg/ha*
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <span tabIndex={0}>
