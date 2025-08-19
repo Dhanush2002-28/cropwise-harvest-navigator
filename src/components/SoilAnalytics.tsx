@@ -332,9 +332,7 @@ const SoilAnalytics: React.FC<SoilAnalyticsProps> = ({
                     ? soilData.phosphorous
                     : soilData.phosphorous || "N/A"}
                 </p>
-                <Badge className={getStatusColor(npkStatus.phosphorous)}>
-                  {npkStatus.phosphorous}
-                </Badge>
+                
               </div>
             </div>
           </CardContent>
@@ -351,9 +349,7 @@ const SoilAnalytics: React.FC<SoilAnalyticsProps> = ({
                     ? soilData.potassium
                     : soilData.potassium || "N/A"}
                 </p>
-                <Badge className={getStatusColor(npkStatus.potassium)}>
-                  {npkStatus.potassium}
-                </Badge>
+                
               </div>
             </div>
           </CardContent>
@@ -373,9 +369,7 @@ const SoilAnalytics: React.FC<SoilAnalyticsProps> = ({
                       ? soilData.ph.toFixed(1)
                       : soilData.ph || "N/A"}
                   </p>
-                  <Badge className={getStatusColor(getPhStatus(soilData.ph))}>
-                    {getPhStatus(soilData.ph)}
-                  </Badge>
+                  
                 </div>
               </div>
             </CardContent>
